@@ -11,6 +11,8 @@ var initialWidth = 0.66666;
 var rotating = true;
 
 var rotationSpeed = 0.02;
+
+var baseRotationSpeed = 0.01;
 var stopId;
 
 window.onload = function init() {
@@ -59,9 +61,18 @@ window.onload = function init() {
         changeRotationDirection();
     }, false);
 
+    var rotationSpeedSlider = this.document.getElementById("rotationSpeedSlider") ;
+    rotationSpeedSlider.addEventListener('click', function(event) {
+        var speed = rotationSpeedSlider.value;
+        if (rotationSpeed > 0) {
+            rotationSpeed = speed * baseRotationSpeed;
+        } else {
+            rotationSpeed = speed * baseRotationSpeed * -1;
+        }
+    }, false);
+
     render();
 };
-
 
 function changeRotationDirection() {
     rotationSpeed = -rotationSpeed;
