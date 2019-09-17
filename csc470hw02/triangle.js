@@ -52,8 +52,20 @@ window.onload = function init() {
         updateSteps();
     }, false);
 
+    var elem = document.getElementById('gl-canvas');
+
+    // Add event listener for `click` events.
+    elem.addEventListener('click', function (event) {
+        changeRotationDirection();
+    }, false);
+
     render();
 };
+
+
+function changeRotationDirection() {
+    rotationSpeed = -rotationSpeed;
+}
 
 function rotateButtonPress() {
     //rotate each vertex
@@ -71,10 +83,6 @@ function rotateAnimation() {
     for (var i = 0; i < vertices.length; i++) {
         let x = vertices[i][0];
         let y = vertices[i][1];
-
-        console.log("x: " + x);
-        console.log("y: " + y);
-
         vertices[i][0] = Math.cos(rotationSpeed) * (x - 0) - Math.sin(rotationSpeed) * (y - 0) + 0;
         vertices[i][1] = Math.sin(rotationSpeed) * (x - 0) + Math.cos(rotationSpeed) * (y - 0) + 0;
     }
