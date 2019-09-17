@@ -62,7 +62,7 @@ window.onload = function init() {
     }, false);
 
     var rotationSpeedSlider = this.document.getElementById("rotationSpeedSlider") ;
-    rotationSpeedSlider.addEventListener('click', function(event) {
+    rotationSpeedSlider.addEventListener('change', function(event) {
         var speed = rotationSpeedSlider.value;
         if (rotationSpeed > 0) {
             rotationSpeed = speed * baseRotationSpeed;
