@@ -8,7 +8,10 @@ var numberOfSquares = 0;
 
 var initialWidth = 0.66666;
 
-var rotating = false;
+var rotating = true;
+
+var rotationSpeed = 0.02;
+var stopId;
 
 window.onload = function init() {
     var canvas = document.getElementById("gl-canvas");
@@ -52,10 +55,33 @@ window.onload = function init() {
     render();
 };
 
-function rotate() {
-    //rotate each matrix
-    rotating = !rotating;
-    console.log(rotating);
+function rotateButtonPress() {
+    //rotate each vertex
+    if (rotating) {
+        rotating = false;
+        window.requestAnimationFrame(rotateAnimation)
+    } else {
+        rotating = true;
+        cancelAnimationFrame(stopId);
+    }
+}
+
+function rotateAnimation() {
+
+    for (var i = 0; i < vertices.length; i++) {
+        let x = vertices[i][0];
+        let y = vertices[i][1];
+
+        console.log("x: " + x);
+        console.log("y: " + y);
+
+        vertices[i][0] = Math.cos(rotationSpeed) * (x - 0) - Math.sin(rotationSpeed) * (y - 0) + 0;
+        vertices[i][1] = Math.sin(rotationSpeed) * (x - 0) + Math.cos(rotationSpeed) * (y - 0) + 0;
+    }
+
+    render();
+
+    stopId = window.requestAnimationFrame(rotateAnimation);
 }
 
 function updateSteps() {
