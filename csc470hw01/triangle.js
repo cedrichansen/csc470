@@ -2,7 +2,7 @@
 
 var gl;
 var vertices = [];
-var numberOfSteps = 7;
+var numberOfSteps = 1;
 var program;
 var numberOfSquares = 0;
 
@@ -109,7 +109,7 @@ function addSquare(xVal, yVal, width) {
 }
 
 function render() {
-
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(vertices)), gl.STATIC_DRAW);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, vertices.length);
 }
