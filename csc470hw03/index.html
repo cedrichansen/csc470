@@ -10,20 +10,41 @@ uniform float vRotationAngle;
 
 void main(){
 
-  vec4 translateToOriginVec = vec4(-vPosition.x, -vPosition.y, -vPosition.z, 1.0);
+  float x = vPosition.x;
+  float y = vPosition.y;
+  float z = vPosition.z;
+  float w = vPosition.w;
 
-  vec4 translatedVector = vPosition + translateToOriginVec;
+  
+  mat3 translationMat = mat3(1.0, 0.0, 0.0,
+                              0.0, 1.0, 0.0,
+                              -x, -y, 1.0);
+  
+ vec3 translatedMatrix =  translationMat * vec3(vPosition);                  
 
+ //This rotation matrix works! do not touch it
   mat3 rotationMatrix = mat3(cos(vRotationAngle), sin(vRotationAngle), 0.0,
-                                -sin(vRotationAngle), cos(vRotationAngle), 0.0,
-                                0.0, 0.0, 1.0);
+                            -sin(vRotationAngle), cos(vRotationAngle), 0.0,
+                            0.0, 0.0, 1.0);
 
-  vec3 rotatedVertex3 = rotationMatrix * vec3(translatedVector);
-  vec4 returnToInitialVec = vec4(vPosition.x, vPosition.y, vPosition.z, 0.0) + vec4(rotatedVertex3, 1.0);
+  vec3 rotatedVertex =  rotationMatrix * translatedMatrix;
 
-  gl_Position = returnToInitialVec;
+  mat3 returnMatrix = mat3(1.0, 0.0, 0.0, 
+                            0.0, 1.0, 0.0,
+                            x, y, 1.0);
+
+  vec3 finalVertex = returnMatrix * rotatedVertex;
+  
+
+  gl_Position = vec4(finalVertex, 1.0);
 
 }
+
+/* THIS HERE WORKS WELL
+  float displacement = vRotationAngle/10.0;
+
+  gl_Position = vPosition + vec4(displacement, 0.0, 0.0, 0.0);
+*/
 
 </script>
   <script id="fragment-shader" type="x-shader/x-fragment">

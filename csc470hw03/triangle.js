@@ -83,8 +83,9 @@ function rotateButtonPress() {
 function rotateAnimation() {
 
     rotationValue += rotationSpeed;
-    console.log(rotationValue);
     gl.uniform1f(gl.getUniformLocation(program, "vRotationAngle"), rotationValue);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.TRIANGLES, 0, vertices.length);
     stopId = window.requestAnimationFrame(rotateAnimation);
 }
 
