@@ -8,11 +8,11 @@ var numberOfSquares = 0;
 
 var initialWidth = 0.66666;
 
-var rotating = true;
+var rotating = false;
 
-var rotationSpeed = 0.02;
+var rotationSpeed = 0.01;
+var rotationValue = 0.0;
 
-var baseRotationSpeed = 0.01;
 var stopId;
 
 window.onload = function init() {
@@ -43,11 +43,6 @@ window.onload = function init() {
     gl.enableVertexAttribArray(vPosition);
     gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
 
-    // Associate out speed variables with our speed attribute
-    var vRotationSpeed = gl.getAttribLocation(program, "rotationSpeed");
-    var vRotationDirection = gl.getAttribLocation(program, "rotationDirection");
-
-
     //add event listener for number slider, and display current selection
     let i = document.querySelector('input'),
         o = document.querySelector('output');
@@ -66,57 +61,30 @@ window.onload = function init() {
         changeRotationDirection();
     }, false);
 
-    var rotationSpeedSlider = this.document.getElementById("rotationSpeedSlider") ;
-    rotationSpeedSlider.addEventListener('change', function(event) {
-        var speed = rotationSpeedSlider.value;
-        if (rotationSpeed > 0) {
-            rotationSpeed = speed * baseRotationSpeed;
-        } else {
-            rotationSpeed = speed * baseRotationSpeed * -1;
-        }
-    }, false);
-
     render();
 };
 
-/**
- * 
- * 
- * https://thebookofshaders.com/08/
- * 
- * 
- * 
- * 
-*/
-
+//called when canvas is clicked
 function changeRotationDirection() {
     rotationSpeed = -rotationSpeed;
-    //gl.uniform1f(vRotationSpeed, rotationSpeed);
-    render();
 }
 
+//called when rotate button on web page is pressed
 function rotateButtonPress() {
-    //rotate each vertex
     if (rotating) {
         rotating = false;
-        window.requestAnimationFrame(rotateAnimation)
+        cancelAnimationFrame(stopId);
     } else {
         rotating = true;
-        cancelAnimationFrame(stopId);
+        window.requestAnimationFrame(rotateAnimation);
     }
 }
 
 function rotateAnimation() {
 
-    // for (var i = 0; i < vertices.length; i++) {
-    //     let x = vertices[i][0];
-    //     let y = vertices[i][1];
-    //     vertices[i][0] = Math.cos(rotationSpeed) * (x - 0) - Math.sin(rotationSpeed) * (y - 0) + 0;
-    //     vertices[i][1] = Math.sin(rotationSpeed) * (x - 0) + Math.cos(rotationSpeed) * (y - 0) + 0;
-    // }
-
-    render();
-
+    rotationValue += rotationSpeed;
+    console.log(rotationValue);
+    gl.uniform1f(gl.getUniformLocation(program, "vRotationAngle"), rotationValue);
     stopId = window.requestAnimationFrame(rotateAnimation);
 }
 
