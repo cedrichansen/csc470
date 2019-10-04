@@ -41,7 +41,7 @@ window.onload = function init() {
     // Associate out shader variables with our data buffer
     var vPosition = gl.getAttribLocation(program, "vPosition");
     gl.enableVertexAttribArray(vPosition);
-    gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
 
     //add event listener for number slider, and display current selection
     let i = document.querySelector('input'),
@@ -131,14 +131,17 @@ function addSquaresToCanvas(step, width) {
 //xVal and yVal represent the corner of the capet, so just add the width to generate the square
 function addSquare(xVal, yVal, width) {
 
-    var newSquare = [
-        vec2(xVal, yVal),
-        vec2(xVal + width, yVal),
-        vec2(xVal, yVal + width),
+    var translationValueX = xVal + width/2;
+    var translationValueY = yVal + width/2;
 
-        vec2(xVal + width, yVal),
-        vec2(xVal, yVal + width),
-        vec2(xVal + width, yVal + width),
+    var newSquare = [
+        vec4(xVal, yVal, translationValueX, translationValueY),
+        vec4(xVal + width, yVal, translationValueX, translationValueY),
+        vec4(xVal, yVal + width, translationValueX, translationValueY),
+
+        vec4(xVal + width, yVal, translationValueX, translationValueY),
+        vec4(xVal, yVal + width, translationValueX, translationValueY),
+        vec4(xVal + width, yVal + width, translationValueX, translationValueY),
     ];
 
     Array.prototype.push.apply(vertices, newSquare);
