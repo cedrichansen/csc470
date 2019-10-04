@@ -97,33 +97,37 @@ function updateSteps() {
 }
 
 function processSteps() {
+
+
     let squareWidth = initialWidth;
-    for (var i = 1; i <= numberOfSteps; i++) {
-        addSquaresToCanvas(i, squareWidth);
-        squareWidth = squareWidth / 3;
-    }
+    addSquaresToCanvas(numberOfSteps, -1, 1, squareWidth)
 
 }
 
-function addSquaresToCanvas(step, width) {
+function addSquaresToCanvas(steps, topLeftX, topLeftY, width) {
 
-    var rows = Math.pow(3, (step - 1));
-    var columns = Math.pow(3, (step - 1));
+    //draw the current middle
+    var squareTopLeftX = topLeftX+width;
+    var squareTopLeftY = topLeftY-width;
+    addSquare(squareTopLeftX, squareTopLeftY, width);
+    
+    if (steps > 1) {
+        steps--;
+        var squareWidth = width/3;
+        //add the row above
+        addSquaresToCanvas(steps, topLeftX, topLeftY, squareWidth);
+        addSquaresToCanvas(steps, topLeftX + width, topLeftY, squareWidth);
+        addSquaresToCanvas(steps, topLeftX + (2* width), topLeftY, squareWidth);
 
-    let startingX = -1 + width;
-    let startingY = -1 + width;
+        //add left and right
+        addSquaresToCanvas(steps, topLeftX, topLeftY-width, squareWidth);
+        addSquaresToCanvas(steps, topLeftX + (2*width), topLeftY-width, squareWidth);
 
-    let x = startingX;
-    let y = startingY;
-
-    let distanceBetweenSquares = 3 * width;
-
-    for (var i = 0; i < rows; i++) {
-        x = startingX + (i * distanceBetweenSquares); //figure out where the squares upper left corner x  is
-        for (var j = 0; j < columns; j++) {
-            y = startingY + (j * distanceBetweenSquares) //figure out where the squares upper left corner y  is 
-            addSquare(x, y, width);
-        }
+        //add row below
+        addSquaresToCanvas(steps, topLeftX, topLeftY-(2* width), squareWidth);
+        addSquaresToCanvas(steps, topLeftX + width, topLeftY - (2 * width), squareWidth);
+        addSquaresToCanvas(steps, topLeftX + (2* width), topLeftY- (2*width), squareWidth);
+        
     }
 
 }
@@ -132,16 +136,16 @@ function addSquaresToCanvas(step, width) {
 function addSquare(xVal, yVal, width) {
 
     var translationValueX = xVal + width/2;
-    var translationValueY = yVal + width/2;
+    var translationValueY = yVal - width/2;
 
     var newSquare = [
         vec4(xVal, yVal, translationValueX, translationValueY),
         vec4(xVal + width, yVal, translationValueX, translationValueY),
-        vec4(xVal, yVal + width, translationValueX, translationValueY),
+        vec4(xVal, yVal - width, translationValueX, translationValueY),
 
         vec4(xVal + width, yVal, translationValueX, translationValueY),
-        vec4(xVal, yVal + width, translationValueX, translationValueY),
-        vec4(xVal + width, yVal + width, translationValueX, translationValueY),
+        vec4(xVal, yVal - width, translationValueX, translationValueY),
+        vec4(xVal + width, yVal - width, translationValueX, translationValueY),
     ];
 
     Array.prototype.push.apply(vertices, newSquare);
