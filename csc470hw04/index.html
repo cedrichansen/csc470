@@ -131,9 +131,10 @@ void main(){
     html,
     body {
       height: 100%;
-      padding: 40px;
+      padding: 10px;
       text-align: center;
       background-color: black;
+      overflow:hidden; //remove this if scroll is needed
     }
 
     html {
@@ -157,68 +158,82 @@ void main(){
       display: block;
       padding-top: 15px;
     }
-    
+    #leftbox { 
+                float:left;  
+                width:25%; 
+                height:280px; 
+            } 
+            #middlebox{ 
+                float:left;  
+                width:50%; 
+                height:280px; 
+            } 
+            #rightbox{ 
+                float:right; 
+                width:25%; 
+                height:280px; 
+            } 
   </style>
 </head>
 
 <body>
-  <h2> HW04 - Rotating 3d Sierpinski Carpet</h2>
+  <br>
   <div>
     <canvas id="gl-canvas" width="700" height="700">
       Oops ... your browser doesn't support the HTML5 canvas element
     </canvas>
 
   </div>
-  <br>
-  <div>
-    <label><font color="white">Number of steps</font></label>
-    <input type="range" min="1" max="7" value="1" id= "stepsSlider">
-    <font color="white"><output></output></font>
-  </div>
-<br>
-  <div>
-      <label><font color="white">Scale factor</font></label>
-      <input type="range" min="0" max="10" value="0" id = "scaleSlider">
-    </div>
-  <br>
 
-  <!-- <div>
-    <button onclick="rotateButtonPress()" id="rotateButton">Rotate</button>
-  </div> -->
+ <div id="leftbox">
+    <div>
+        <label><font color="white">Number of steps</font></label>
+        <input type="range" min="1" max="7" value="1" id= "stepsSlider">
+        <font color="white"><output></output></font>
+      </div>
+    <br>
+      <div>
+          <label><font color="white">Scale factor</font></label>
+          <input type="range" min="0" max="10" value="0" id = "scaleSlider">
+        </div>
+ </div> 
 
-  <div>
-      <label><font color="white">Rotate</font></label>
-      <label class="switch">
-        <input id="rotateSlider" type="checkbox">
-        <span class="slider round"></span>
-      </label>
-    </div>
-
-
-
-  <div>
-    <label><font color="white">Rotation X</font></label>
+<div id="rightbox">  <div>
+    <label><font color="white">Rotate</font></label>
     <label class="switch">
-      <input id="rotationX" type="checkbox" checked>
+      <input id="rotateSlider" type="checkbox">
       <span class="slider round"></span>
     </label>
   </div>
 
-  <div>
-    <label><font color="white">Rotation Y</font></label>
-    <label class="switch">
-      <input id="rotationY" type="checkbox" checked>
-      <span class="slider round"></span>
-    </label>
-  </div>
 
-  <div>
-    <label><font color="white">Rotation Z</font></label>
-    <label class="switch">
-      <input id="rotationZ" type="checkbox" checked>
-      <span class="slider round"></span>
-    </label>
-  </div>
+
+<div>
+  <label><font color="white">Rotation X</font></label>
+  <label class="switch">
+    <input id="rotationX" type="checkbox" checked>
+    <span class="slider round"></span>
+  </label>
+</div>
+
+<div>
+  <label><font color="white">Rotation Y</font></label>
+  <label class="switch">
+    <input id="rotationY" type="checkbox" checked>
+    <span class="slider round"></span>
+  </label>
+</div>
+
+<div>
+  <label><font color="white">Rotation Z</font></label>
+  <label class="switch">
+    <input id="rotationZ" type="checkbox" checked>
+    <span class="slider round"></span>
+  </label>
+</div>
+</div>
+
+
 
 
 </body>
