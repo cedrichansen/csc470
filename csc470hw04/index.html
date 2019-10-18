@@ -73,10 +73,10 @@ uniform float vRotationAngleY;
 uniform float vRotationAngleZ;
 
 void main(){
-
+/*
   float translationValueX = vTranslation.x;
   float translationValueY = vTranslation.y;
-  float translationValueZ = vTranslation.z; //this should always be 0 in this example
+  float translationValueZ = vTranslation.z;
   
   mat4 translationMat = mat4(1.0, 0.0, 0.0, 0,0,
                               0.0, 1.0, 0.0, 0,0,
@@ -101,7 +101,7 @@ void main(){
                               0.0, 0.0, 0.0, 1.0);    
 
 
-  vec4 rotatedVertexX =  rotationMatrixX * rotationMatrixY * rotationMatrixZ * centeredVector;
+  vec4 rotatedVertex =  rotationMatrixX * rotationMatrixY * rotationMatrixZ * centeredVector;
 
   mat4 returnMatrix = mat4(1.0, 0.0, 0.0, 0,0,
                             0.0, 1.0, 0.0, 0,0,
@@ -109,8 +109,8 @@ void main(){
                             translationValueX, translationValueY, translationValueZ, 1.0);
 
   vec4 finalVertex = returnMatrix * rotatedVertex;
-
-  gl_Position = finalVertex;
+*/
+  gl_Position = vPosition;
 
 }
 

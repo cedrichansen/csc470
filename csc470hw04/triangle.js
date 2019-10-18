@@ -176,17 +176,41 @@ function addSquaresToCanvas(steps, topLeftX, topLeftY, width) {
 //xVal and yVal represent the corner of the capet, so just add the width to generate the square
 function addSquare(xVal, yVal, width) {
 
+    //pass these 2 into a seperate buffer
     var translationValueX = xVal + width/2;
     var translationValueY = yVal - width/2;
 
     var newSquare = [
-        vec4(xVal, yVal, translationValueX, translationValueY),
-        vec4(xVal + width, yVal, translationValueX, translationValueY),
-        vec4(xVal, yVal - width, translationValueX, translationValueY),
+        //front facing side
+        vec4(xVal, yVal, width/2, 1),
+        vec4(xVal + width, yVal, width/2, 1),
+        vec4(xVal, yVal, width/2, 1),
+        vec4(xVal, yVal -width, width/2, 1),
+        vec4(xVal, yVal -width, width/2, 1),
+        vec4(xVal + width, yVal -width, width/2, 1),
+        vec4(xVal + width, yVal -width, width/2, 1),
+        vec4(xVal + width, yVal, width/2, 1),
 
-        vec4(xVal + width, yVal, translationValueX, translationValueY),
-        vec4(xVal, yVal - width, translationValueX, translationValueY),
-        vec4(xVal + width, yVal - width, translationValueX, translationValueY),
+        //back facing side
+        vec4(xVal, yVal, -width/2, 1),
+        vec4(xVal + width, yVal, -width/2, 1),
+        vec4(xVal, yVal, -width/2, 1),
+        vec4(xVal, yVal -width, -width/2, 1),
+        vec4(xVal, yVal -width, -width/2, 1),
+        vec4(xVal + width, yVal -width, -width/2, 1),
+        vec4(xVal + width, yVal -width, -width/2, 1),
+        vec4(xVal + width, yVal, -width/2, 1),
+
+        //lines connecting front and back
+        vec4(xVal, yVal, -width/2, 1),
+        vec4(xVal, yVal, width/2, 1),
+        vec4(xVal, yVal -width, -width/2, 1),
+        vec4(xVal, yVal -width, width/2, 1),
+        vec4(xVal + width, yVal, -width/2, 1),
+        vec4(xVal + width, yVal, width/2, 1),
+        vec4(xVal + width, yVal -width, -width/2, 1),
+        vec4(xVal + width, yVal -width, width/2, 1),
+
     ];
 
     Array.prototype.push.apply(vertices, newSquare);
@@ -197,5 +221,5 @@ function addSquare(xVal, yVal, width) {
 function render() {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(vertices)), gl.STATIC_DRAW);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.drawArrays(gl.TRIANGLES, 0, vertices.length);
+    gl.drawArrays(gl.LINES, 0, vertices.length);
 }
