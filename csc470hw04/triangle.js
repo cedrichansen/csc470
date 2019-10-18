@@ -2,6 +2,8 @@
 
 var gl;
 var vertices = [];
+var translations = [];
+
 var numberOfSteps = 1;
 var program;
 var numberOfSquares = 0;
@@ -20,6 +22,9 @@ var rotationSpeedZ = 0.01;
 var rotationValueZ = 0.0;
 
 var rotationDirection = 1;
+
+var positionBuffer;
+var translationBuffer;
 
 var stopId;
 
@@ -40,20 +45,28 @@ window.onload = function init() {
     program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
 
-    // Load the data into the GPU        
-    var positionBuffer = gl.createBuffer();
+    // Position buffer       
+    positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(vertices)), gl.STATIC_DRAW);
 
-    // Associate out shader variables with our data buffer
-    var vPosition = gl.getAttribLocation(program, "vPosition");
-    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 24, 0);
-    gl.enableVertexAttribArray(vPosition);
-
     // //translation values
+    translationBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, translationBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(translations)), gl.STATIC_DRAW);
+
+
+    var vPosition = gl.getAttribLocation(program, "vPosition");
+    gl.enableVertexAttribArray(vPosition);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
+    
+
     var vTranslation = gl.getAttribLocation(program, "vTranslation");
-    gl.vertexAttribPointer(vTranslation, 4, gl.FLOAT, false, 24, 12);
     gl.enableVertexAttribArray(vTranslation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.translationBuffer);
+    gl.vertexAttribPointer(vTranslation, 3, gl.FLOAT, false, 0, 0);
+   
 
 
     //add event listener for number slider, and display current selection
@@ -141,6 +154,7 @@ function rotateAnimation() {
 function updateSteps() {
     numberOfSquares = 0;
     vertices = [];
+    translations = [];
     processSteps();
     render();
 }
@@ -189,71 +203,83 @@ function addSquare(xVal, yVal, width) {
 
     var newSquare = [
         //front facing side
-        vec4(xVal, yVal, cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal + width, yVal, cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal + width, yVal, cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal + width, yVal- width, cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal + width, yVal- width, cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal, yVal- width, cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal, yVal- width, cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal, yVal, cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
+        vec3(xVal, yVal, cubeDepth),
+        vec3(xVal + width, yVal, cubeDepth),
+        vec3(xVal + width, yVal, cubeDepth),
+        vec3(xVal + width, yVal- width, cubeDepth),
+        vec3(xVal + width, yVal- width, cubeDepth),
+        vec3(xVal, yVal- width, cubeDepth),
+        vec3(xVal, yVal- width, cubeDepth),
+        vec3(xVal, yVal, cubeDepth),
 
 
         //back facing side
-        vec4(xVal, yVal, -cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal + width, yVal, -cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal + width, yVal, -cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal + width, yVal- width, -cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal + width, yVal- width, -cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal, yVal- width, -cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal, yVal- width, -cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal, yVal, -cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
+        vec3(xVal, yVal, -cubeDepth),
+        vec3(xVal + width, yVal, -cubeDepth),
+        vec3(xVal + width, yVal, -cubeDepth),
+        vec3(xVal + width, yVal- width, -cubeDepth),
+        vec3(xVal + width, yVal- width, -cubeDepth),
+        vec3(xVal, yVal- width, -cubeDepth),
+        vec3(xVal, yVal- width, -cubeDepth),
+        vec3(xVal, yVal, -cubeDepth),
 
 
         // //lines connecting front and back
-        vec4(xVal, yVal, cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal, yVal, -cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal, yVal -width, cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal, yVal -width, -cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal + width, yVal, cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal + width, yVal, -cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal + width, yVal -width, cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-        vec4(xVal + width, yVal -width, -cubeDepth, 1),
-        vec4(translationValueX, translationValueY, 0, 1),
-
+        vec3(xVal, yVal, cubeDepth),
+        vec3(xVal, yVal, -cubeDepth),
+        vec3(xVal, yVal -width, cubeDepth),
+        vec3(xVal, yVal -width, -cubeDepth),
+        vec3(xVal + width, yVal, cubeDepth),
+        vec3(xVal + width, yVal, -cubeDepth),
+        vec3(xVal + width, yVal -width, cubeDepth),
+        vec3(xVal + width, yVal -width, -cubeDepth),
     ];
 
+    var translation = [
+        vec3(translationValueX, translationValueY, 0),
+        vec3(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+        vec4(translationValueX, translationValueY, 0),
+
+    ]
 
     Array.prototype.push.apply(vertices, newSquare);
+    Array.prototype.push.apply(translations, translation);
 
     numberOfSquares++;
 }
 
 function render() {
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(vertices)), gl.STATIC_DRAW);
     gl.clear(gl.COLOR_BUFFER_BIT);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(vertices)), gl.STATIC_DRAW);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, translationBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(translations)), gl.STATIC_DRAW);
+
     gl.drawArrays(gl.LINES, 0, vertices.length);
+    
 }
