@@ -26,6 +26,8 @@ var rotationDirection = 1;
 var positionBuffer;
 var translationBuffer;
 
+var scaleFactor = 0;
+
 var stopId;
 
 window.onload = function init() {
@@ -70,7 +72,7 @@ window.onload = function init() {
 
 
     //add event listener for number slider, and display current selection
-    let i = document.querySelector('input'),
+    let i = document.getElementById("stepsSlider"),
         o = document.querySelector('output');
 
     o.innerHTML = i.value;
@@ -81,11 +83,16 @@ window.onload = function init() {
     }, false);
 
     var elem = document.getElementById('gl-canvas');
-
-    // Add event listener for `click` events on canvas
     elem.addEventListener('click', function (event) {
         changeRotationDirection();
     }, false);
+
+    var scaleFactorSlider = document.getElementById("scaleSlider");
+    scaleFactorSlider.addEventListener('change', function(event) {
+        scaleFactor = scaleFactorSlider.value * 0.1;
+        gl.uniform1f(gl.getUniformLocation(program, "scaleFactor"), scaleFactor);
+        render();
+    })
 
 
     //following 3 event listeners are for toggle switches. 
@@ -145,6 +152,7 @@ function rotateAnimation() {
     gl.uniform1f(gl.getUniformLocation(program, "vRotationAngleX"), rotationValueX);
     gl.uniform1f(gl.getUniformLocation(program, "vRotationAngleY"), rotationValueY);
     gl.uniform1f(gl.getUniformLocation(program, "vRotationAngleZ"), rotationValueZ);
+    gl.uniform1f(gl.getUniformLocation(program, "scaleFactor"), scaleFactor);
 
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.LINES, 0, vertices.length);

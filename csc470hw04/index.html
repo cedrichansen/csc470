@@ -41,7 +41,7 @@
     }
 
     input:checked+.slider {
-      background-color: #2196F3;
+      background-color: rgb(243, 33, 33);
     }
 
     input:focus+.slider {
@@ -71,6 +71,8 @@ attribute vec3 vTranslation;
 uniform float vRotationAngleX;
 uniform float vRotationAngleY;
 uniform float vRotationAngleZ;
+
+uniform float scaleFactor;
 
 void main(){
 
@@ -106,7 +108,9 @@ void main(){
 
   vec4 finalVertex = returnMatrix * rotatedVertex;
 
-  gl_Position = finalVertex;
+  float zToDivideBy = 1.0 + finalVertex.z * scaleFactor;
+
+  gl_Position = vec4(finalVertex.xy/zToDivideBy, finalVertex.zw);
 
 }
 
@@ -168,15 +172,21 @@ void main(){
   <br>
   <div>
     <label><font color="white">Number of steps</font></label>
-    <input type="range" min="1" max="8" value="1">
+    <input type="range" min="1" max="7" value="1" id= "stepsSlider">
     <font color="white"><output></output></font>
   </div>
+<br>
+  <div>
+      <label><font color="white">Scale factor</font></label>
+      <input type="range" min="0" max="10" value="0" id = "scaleSlider">
+    </div>
+  <br>
 
   <div>
     <button onclick="rotateButtonPress()" id="rotateButton">Rotate</button>
   </div>
 
-  <br>
+
 
   <div>
     <label><font color="white">Rotation X</font></label>
