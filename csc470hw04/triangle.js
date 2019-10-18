@@ -31,7 +31,6 @@ window.onload = function init() {
     }
 
     processSteps();
-    console.log(vertices);
 
     //  Configure WebGL    
     gl.viewport(0, 0, canvas.width, canvas.height);
@@ -73,7 +72,7 @@ window.onload = function init() {
     //following 3 event listeners are for toggle switches. 
     //When pressed, the rotation speed changes accordingly
     var xToggle = this.document.getElementById("rotationX");
-    xToggle.addEventListener('click', function(event){
+    xToggle.addEventListener('change', function(event){
         if (xToggle.checked) {
             rotationSpeedX = 0.01 * rotationDirection;
         } else {
@@ -82,7 +81,7 @@ window.onload = function init() {
     }, false)
 
     var yToggle = this.document.getElementById("rotationY");
-    yToggle.addEventListener('click', function(event){
+    yToggle.addEventListener('change', function(event){
         if (yToggle.checked) {
             rotationSpeedY = 0.01 * rotationDirection;
         } else {
@@ -91,7 +90,7 @@ window.onload = function init() {
     }, false)
 
     var zToggle = this.document.getElementById("rotationZ");
-    zToggle.addEventListener('click', function(event){
+    zToggle.addEventListener('change', function(event){
         if (zToggle.checked) {
             rotationSpeedZ = 0.01 * rotationDirection;
         } else {
@@ -129,7 +128,7 @@ function rotateAnimation() {
     gl.uniform1f(gl.getUniformLocation(program, "vRotationAngleZ"), rotationValueZ);
 
     gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.drawArrays(gl.TRIANGLES, 0, vertices.length);
+    gl.drawArrays(gl.LINES, 0, vertices.length);
     stopId = window.requestAnimationFrame(rotateAnimation);
 }
 
@@ -180,36 +179,38 @@ function addSquare(xVal, yVal, width) {
     var translationValueX = xVal + width/2;
     var translationValueY = yVal - width/2;
 
+    var cubeDepth = width/2;
+
     var newSquare = [
         //front facing side
-        vec4(xVal, yVal, width/2, 1),
-        vec4(xVal + width, yVal, width/2, 1),
-        vec4(xVal, yVal, width/2, 1),
-        vec4(xVal, yVal -width, width/2, 1),
-        vec4(xVal, yVal -width, width/2, 1),
-        vec4(xVal + width, yVal -width, width/2, 1),
-        vec4(xVal + width, yVal -width, width/2, 1),
-        vec4(xVal + width, yVal, width/2, 1),
+        vec4(xVal, yVal, cubeDepth, 1),
+        vec4(xVal + width, yVal, cubeDepth, 1),
+        vec4(xVal + width, yVal, cubeDepth, 1),
+        vec4(xVal + width, yVal- width, cubeDepth, 1),
+        vec4(xVal + width, yVal- width, cubeDepth, 1),
+        vec4(xVal, yVal- width, cubeDepth, 1),
+        vec4(xVal, yVal- width, cubeDepth, 1),
+        vec4(xVal, yVal, cubeDepth, 1),
 
         //back facing side
-        vec4(xVal, yVal, -width/2, 1),
-        vec4(xVal + width, yVal, -width/2, 1),
-        vec4(xVal, yVal, -width/2, 1),
-        vec4(xVal, yVal -width, -width/2, 1),
-        vec4(xVal, yVal -width, -width/2, 1),
-        vec4(xVal + width, yVal -width, -width/2, 1),
-        vec4(xVal + width, yVal -width, -width/2, 1),
-        vec4(xVal + width, yVal, -width/2, 1),
+        vec4(xVal, yVal, -cubeDepth, 1),
+        vec4(xVal + width, yVal, -cubeDepth, 1),
+        vec4(xVal + width, yVal, -cubeDepth, 1),
+        vec4(xVal + width, yVal- width, -cubeDepth, 1),
+        vec4(xVal + width, yVal- width, -cubeDepth, 1),
+        vec4(xVal, yVal- width, -cubeDepth, 1),
+        vec4(xVal, yVal- width, -cubeDepth, 1),
+        vec4(xVal, yVal, -cubeDepth, 1),
 
-        //lines connecting front and back
-        vec4(xVal, yVal, -width/2, 1),
-        vec4(xVal, yVal, width/2, 1),
-        vec4(xVal, yVal -width, -width/2, 1),
-        vec4(xVal, yVal -width, width/2, 1),
-        vec4(xVal + width, yVal, -width/2, 1),
-        vec4(xVal + width, yVal, width/2, 1),
-        vec4(xVal + width, yVal -width, -width/2, 1),
-        vec4(xVal + width, yVal -width, width/2, 1),
+        // //lines connecting front and back
+        vec4(xVal, yVal, cubeDepth, 1),
+        vec4(xVal, yVal, -cubeDepth, 1),
+        vec4(xVal, yVal -width, cubeDepth, 1),
+        vec4(xVal, yVal -width, -cubeDepth, 1),
+        vec4(xVal + width, yVal, cubeDepth, 1),
+        vec4(xVal + width, yVal, -cubeDepth, 1),
+        vec4(xVal + width, yVal -width, cubeDepth, 1),
+        vec4(xVal + width, yVal -width, -cubeDepth, 1),
 
     ];
 
