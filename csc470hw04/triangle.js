@@ -41,14 +41,20 @@ window.onload = function init() {
     gl.useProgram(program);
 
     // Load the data into the GPU        
-    var bufferId = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
+    var positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(vertices)), gl.STATIC_DRAW);
 
     // Associate out shader variables with our data buffer
     var vPosition = gl.getAttribLocation(program, "vPosition");
+    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 24, 0);
     gl.enableVertexAttribArray(vPosition);
-    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+
+    // //translation values
+    var vTranslation = gl.getAttribLocation(program, "vTranslation");
+    gl.vertexAttribPointer(vTranslation, 4, gl.FLOAT, false, 24, 12);
+    gl.enableVertexAttribArray(vTranslation);
+
 
     //add event listener for number slider, and display current selection
     let i = document.querySelector('input'),
@@ -92,7 +98,7 @@ window.onload = function init() {
     var zToggle = this.document.getElementById("rotationZ");
     zToggle.addEventListener('change', function(event){
         if (zToggle.checked) {
-            rotationSpeedZ = 0.01 * rotationDirection;
+            rotationSpeedZ = 0.01;
         } else {
             rotationSpeedZ = 0.00;
         }
@@ -119,9 +125,9 @@ function rotateButtonPress() {
 
 function rotateAnimation() {
 
-    rotationValueX += rotationSpeedX;
-    rotationValueY += rotationSpeedY;
-    rotationValueZ += rotationSpeedZ;
+    rotationValueX += rotationSpeedX * rotationDirection;
+    rotationValueY += rotationSpeedY * rotationDirection;
+    rotationValueZ += rotationSpeedZ * rotationDirection;
 
     gl.uniform1f(gl.getUniformLocation(program, "vRotationAngleX"), rotationValueX);
     gl.uniform1f(gl.getUniformLocation(program, "vRotationAngleY"), rotationValueY);
@@ -184,35 +190,62 @@ function addSquare(xVal, yVal, width) {
     var newSquare = [
         //front facing side
         vec4(xVal, yVal, cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal + width, yVal, cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal + width, yVal, cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal + width, yVal- width, cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal + width, yVal- width, cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal, yVal- width, cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal, yVal- width, cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal, yVal, cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
+
 
         //back facing side
         vec4(xVal, yVal, -cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal + width, yVal, -cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal + width, yVal, -cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal + width, yVal- width, -cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal + width, yVal- width, -cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal, yVal- width, -cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal, yVal- width, -cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal, yVal, -cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
+
 
         // //lines connecting front and back
         vec4(xVal, yVal, cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal, yVal, -cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal, yVal -width, cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal, yVal -width, -cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal + width, yVal, cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal + width, yVal, -cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal + width, yVal -width, cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
         vec4(xVal + width, yVal -width, -cubeDepth, 1),
+        vec4(translationValueX, translationValueY, 0, 1),
 
     ];
+
 
     Array.prototype.push.apply(vertices, newSquare);
 
