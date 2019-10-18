@@ -70,6 +70,10 @@ window.onload = function init() {
     gl.vertexAttribPointer(vTranslation, 3, gl.FLOAT, false, 0, 0);
    
 
+    var rotateSlider = document.getElementById("rotateSlider");
+    rotateSlider.addEventListener('change', function(event){
+        rotateButtonPress(rotateSlider.checked);
+    });
 
     //add event listener for number slider, and display current selection
     let i = document.getElementById("stepsSlider"),
@@ -133,8 +137,8 @@ function changeRotationDirection() {
 }
 
 //called when rotate button on web page is pressed
-function rotateButtonPress() {
-    if (rotating) {
+function rotateButtonPress(rotateOn) {
+    if (!rotateOn) {
         rotating = false;
         cancelAnimationFrame(stopId);
     } else {
