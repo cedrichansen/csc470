@@ -7,17 +7,14 @@ var translations = [];
 var numberOfSteps = 1;
 var program;
 var numberOfSquares = 0;
-
 var initialWidth = 0.66666;
 
 var rotating = false;
 
 var rotationSpeedX = 0.01;
 var rotationValueX = 0.0;
-
 var rotationSpeedY = 0.01;
 var rotationValueY = 0.0;
-
 var rotationSpeedZ = 0.01;
 var rotationValueZ = 0.0;
 
@@ -29,6 +26,13 @@ var translationBuffer;
 var scaleFactor = 0;
 
 var stopId;
+
+var eye = vec3(0.0, 0, -1.0);
+var at = vec3(0.0, 0.0, 0.0);
+var up = vec3(0.0, 1.0, 0.0);
+
+var moveSpeed = 0.1;
+
 
 window.onload = function init() {
     var canvas = document.getElementById("gl-canvas");
@@ -129,8 +133,54 @@ window.onload = function init() {
         }
     }, false)
 
+    document.addEventListener("keypress", handleKeyboard, false);
+
     render();
 };
+
+function handleKeyboard(e) {
+    if (e.keyCode == "97") {
+        strafeLeft();
+    } else if (e.keyCode == "100") {
+        strafeRight();
+    } else if (e.keyCode == "119") {
+        moveUp();
+    } else if (e.keyCode == "115") {
+        moveDown();
+    }
+}
+
+function strafeLeft(){
+    var newAt = vec3(at[0] + moveSpeed, at[1], at[2]);
+    at = newAt;
+    var newEye = vec3(eye[0] + moveSpeed, eye[1], eye[2]);
+    eye = newEye;
+    render();
+}
+
+function strafeRight(){
+    var newAt = vec3(at[0] - moveSpeed, at[1], at[2]);
+    at = newAt;
+    var newEye = vec3(eye[0] - moveSpeed, eye[1], eye[2]);
+    eye = newEye;
+    render();
+}
+
+function moveUp(){
+    var newAt = vec3(at[0], at[1] + moveSpeed, at[2]);
+    at = newAt;
+    var newEye = vec3(eye[0], eye[1] + moveSpeed, eye[2]);
+    eye = newEye;
+    render();
+}
+
+function moveDown(){
+    var newAt = vec3(at[0], at[1] - moveSpeed, at[2]);
+    at = newAt;
+    var newEye = vec3(eye[0], eye[1] - moveSpeed, eye[2]);
+    eye = newEye;
+    render();
+}
 
 //called when canvas is clicked
 function changeRotationDirection() {
