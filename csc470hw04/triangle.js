@@ -27,12 +27,20 @@ var scaleFactor = 0;
 
 var stopId;
 
-var eye = vec3(0.0, 0, -1.0);
-var at = vec3(0.0, 0.0, 0.0);
+var eye = vec3(0.0, 0.0, 0.0);
+var at = vec3(0.0, 0.0, -2.0);
 var up = vec3(0.0, 1.0, 0.0);
 
-var moveSpeed = 0.1;
+var camera = lookAt(eye, at, up);
 
+var moveSpeed = 0.05;
+
+var aspect = 1;
+var zNear = 1;
+var zFar = 5;
+var fieldOfView = 30;
+
+var projectionMatrix = perspective(fieldOfView, aspect, zNear, zFar);
 
 window.onload = function init() {
     var canvas = document.getElementById("gl-canvas");
@@ -43,6 +51,8 @@ window.onload = function init() {
 
     processSteps();
 
+    this.aspect = canvas.width / canvas.height;
+
     //  Configure WebGL    
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -51,7 +61,7 @@ window.onload = function init() {
     program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
 
-    gl.enable(gl.DEPTH_TEST);
+    //gl.enable(gl.DEPTH_TEST);
     // Position buffer       
     positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -73,6 +83,9 @@ window.onload = function init() {
     gl.enableVertexAttribArray(vTranslation);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.translationBuffer);
     gl.vertexAttribPointer(vTranslation, 3, gl.FLOAT, false, 0, 0);
+
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, "lookAt"), false, flatten(camera));
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, "perspective"), false, flatten(projectionMatrix));
    
 
     var rotateSlider = document.getElementById("rotateSlider");
@@ -141,29 +154,51 @@ window.onload = function init() {
 function handleKeyboard(e) {
     if (e.keyCode == "97") {
         strafeLeft();
+        camera = lookAt(eye, at, up);
+        //projectionMatrix = perspective(fieldOfView);
+        gl.uniformMatrix4fv(gl.getUniformLocation(program, "lookAt"), false, flatten(camera));
+        gl.uniformMatrix4fv(gl.getUniformLocation(program, "perspective"), false, flatten(projectionMatrix));
+    
+        render();
     } else if (e.keyCode == "100") {
         strafeRight();
+        camera = lookAt(eye, at, up);
+        //projectionMatrix = perspective(fieldOfView);
+        gl.uniformMatrix4fv(gl.getUniformLocation(program, "lookAt"), false, flatten(camera));
+        gl.uniformMatrix4fv(gl.getUniformLocation(program, "perspective"), false, flatten(projectionMatrix));
+    
+        render();
     } else if (e.keyCode == "119") {
         moveUp();
+        camera = lookAt(eye, at, up);
+        //projectionMatrix = perspective(fieldOfView);
+        gl.uniformMatrix4fv(gl.getUniformLocation(program, "lookAt"), false, flatten(camera));
+        gl.uniformMatrix4fv(gl.getUniformLocation(program, "perspective"), false, flatten(projectionMatrix));
+    
+        render();
     } else if (e.keyCode == "115") {
         moveDown();
-    }
+        camera = lookAt(eye, at, up);
+        //projectionMatrix = perspective(fieldOfView);
+        gl.uniformMatrix4fv(gl.getUniformLocation(program, "lookAt"), false, flatten(camera));
+        gl.uniformMatrix4fv(gl.getUniformLocation(program, "perspective"), false, flatten(projectionMatrix));
+    
+        render();
+    } 
 }
 
 function strafeLeft(){
-    var newAt = vec3(at[0] + moveSpeed, at[1], at[2]);
-    at = newAt;
-    var newEye = vec3(eye[0] + moveSpeed, eye[1], eye[2]);
-    eye = newEye;
-    render();
-}
-
-function strafeRight(){
     var newAt = vec3(at[0] - moveSpeed, at[1], at[2]);
     at = newAt;
     var newEye = vec3(eye[0] - moveSpeed, eye[1], eye[2]);
     eye = newEye;
-    render();
+}
+
+function strafeRight(){
+    var newAt = vec3(at[0] + moveSpeed, at[1], at[2]);
+    at = newAt;
+    var newEye = vec3(eye[0] + moveSpeed, eye[1], eye[2]);
+    eye = newEye;
 }
 
 function moveUp(){
@@ -171,7 +206,6 @@ function moveUp(){
     at = newAt;
     var newEye = vec3(eye[0], eye[1] + moveSpeed, eye[2]);
     eye = newEye;
-    render();
 }
 
 function moveDown(){
@@ -179,7 +213,6 @@ function moveDown(){
     at = newAt;
     var newEye = vec3(eye[0], eye[1] - moveSpeed, eye[2]);
     eye = newEye;
-    render();
 }
 
 //called when canvas is clicked
