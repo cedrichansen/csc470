@@ -72,8 +72,8 @@ uniform float vRotationAngleX;
 uniform float vRotationAngleY;
 uniform float vRotationAngleZ;
 
-uniform mat4 lookAt;
-uniform mat4 perspective;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
 
 uniform float scaleFactor;
 
@@ -113,12 +113,10 @@ void main(){
 
   float zToDivideBy = 1.0 + finalVertex.z * scaleFactor;
 
-  vec4 cameraVert = lookAt * finalVertex;
-  vec4 perspective = vec4(cameraVert.xy/zToDivideBy, cameraVert.zw);
-  //gl_Position = vec4(finalVertex.xy/zToDivideBy, finalVertex.zw);
+  vec4 cameraVert = modelViewMatrix * finalVertex;
+  //vec4 perspectiveV = vec4(cameraVert.xy/zToDivideBy, cameraVert.zw);
+  gl_Position = cameraVert;
 
-
-  gl_Position = perspective;
 
 }
 

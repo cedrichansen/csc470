@@ -28,16 +28,16 @@ var scaleFactor = 0;
 var stopId;
 
 var eye = vec3(0.0, 0.0, 0.0);
-var at = vec3(0.0, 0.0, -2.0);
+var at = vec3(0.0, 0.0, -1.0);
 var up = vec3(0.0, 1.0, 0.0);
 
-var camera = lookAt(eye, at, up);
+var modelView = lookAt(eye, at, up);
 
 var moveSpeed = 0.05;
 
 var aspect = 1;
 var zNear = 1;
-var zFar = 5;
+var zFar = 1000;
 var fieldOfView = 30;
 
 var projectionMatrix = perspective(fieldOfView, aspect, zNear, zFar);
@@ -50,8 +50,6 @@ window.onload = function init() {
     }
 
     processSteps();
-
-    this.aspect = canvas.width / canvas.height;
 
     //  Configure WebGL    
     gl.viewport(0, 0, canvas.width, canvas.height);
@@ -77,19 +75,19 @@ window.onload = function init() {
     gl.enableVertexAttribArray(vPosition);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
     gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
-    
+
 
     var vTranslation = gl.getAttribLocation(program, "vTranslation");
     gl.enableVertexAttribArray(vTranslation);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.translationBuffer);
     gl.vertexAttribPointer(vTranslation, 3, gl.FLOAT, false, 0, 0);
 
-    gl.uniformMatrix4fv(gl.getUniformLocation(program, "lookAt"), false, flatten(camera));
-    gl.uniformMatrix4fv(gl.getUniformLocation(program, "perspective"), false, flatten(projectionMatrix));
-   
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(modelView));
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
+
 
     var rotateSlider = document.getElementById("rotateSlider");
-    rotateSlider.addEventListener('change', function(event){
+    rotateSlider.addEventListener('change', function (event) {
         rotateButtonPress(rotateSlider.checked);
     });
 
@@ -110,7 +108,7 @@ window.onload = function init() {
     }, false);
 
     var scaleFactorSlider = document.getElementById("scaleSlider");
-    scaleFactorSlider.addEventListener('change', function(event) {
+    scaleFactorSlider.addEventListener('change', function (event) {
         scaleFactor = scaleFactorSlider.value * 0.1;
         gl.uniform1f(gl.getUniformLocation(program, "scaleFactor"), scaleFactor);
         render();
@@ -120,7 +118,7 @@ window.onload = function init() {
     //following 3 event listeners are for toggle switches. 
     //When pressed, the rotation speed changes accordingly
     var xToggle = this.document.getElementById("rotationX");
-    xToggle.addEventListener('change', function(event){
+    xToggle.addEventListener('change', function (event) {
         if (xToggle.checked) {
             rotationSpeedX = 0.01 * rotationDirection;
         } else {
@@ -129,7 +127,7 @@ window.onload = function init() {
     }, false)
 
     var yToggle = this.document.getElementById("rotationY");
-    yToggle.addEventListener('change', function(event){
+    yToggle.addEventListener('change', function (event) {
         if (yToggle.checked) {
             rotationSpeedY = 0.01 * rotationDirection;
         } else {
@@ -138,7 +136,7 @@ window.onload = function init() {
     }, false)
 
     var zToggle = this.document.getElementById("rotationZ");
-    zToggle.addEventListener('change', function(event){
+    zToggle.addEventListener('change', function (event) {
         if (zToggle.checked) {
             rotationSpeedZ = 0.01;
         } else {
@@ -152,67 +150,100 @@ window.onload = function init() {
 };
 
 function handleKeyboard(e) {
-    if (e.keyCode == "97") {
+    var validkeyPress = false;
+    if (e.key == "a") {
         strafeLeft();
-        camera = lookAt(eye, at, up);
-        //projectionMatrix = perspective(fieldOfView);
-        gl.uniformMatrix4fv(gl.getUniformLocation(program, "lookAt"), false, flatten(camera));
-        gl.uniformMatrix4fv(gl.getUniformLocation(program, "perspective"), false, flatten(projectionMatrix));
-    
-        render();
-    } else if (e.keyCode == "100") {
+        validkeyPress = true;
+    } else if (e.key == "d") {
         strafeRight();
-        camera = lookAt(eye, at, up);
-        //projectionMatrix = perspective(fieldOfView);
-        gl.uniformMatrix4fv(gl.getUniformLocation(program, "lookAt"), false, flatten(camera));
-        gl.uniformMatrix4fv(gl.getUniformLocation(program, "perspective"), false, flatten(projectionMatrix));
-    
-        render();
-    } else if (e.keyCode == "119") {
+        validkeyPress = true;
+    } else if (e.key == "w") {
         moveUp();
-        camera = lookAt(eye, at, up);
-        //projectionMatrix = perspective(fieldOfView);
-        gl.uniformMatrix4fv(gl.getUniformLocation(program, "lookAt"), false, flatten(camera));
-        gl.uniformMatrix4fv(gl.getUniformLocation(program, "perspective"), false, flatten(projectionMatrix));
-    
-        render();
-    } else if (e.keyCode == "115") {
+        validkeyPress = true;
+    } else if (e.key == "s") {
         moveDown();
-        camera = lookAt(eye, at, up);
-        //projectionMatrix = perspective(fieldOfView);
-        gl.uniformMatrix4fv(gl.getUniformLocation(program, "lookAt"), false, flatten(camera));
-        gl.uniformMatrix4fv(gl.getUniformLocation(program, "perspective"), false, flatten(projectionMatrix));
+        validkeyPress = true;
+    } else if (e.key == "q") {
+        zoom();
+        validkeyPress = true;
+    } else if (e.key == "e") {
+        further();
+        validkeyPress = true;
+    } else if (e.key == "z") {
+        turnRight();
+        validkeyPress = true;
+    } else if (e.key == "x") {
+        turnLeft();
+        validkeyPress = true;
+    }
     
+
+    if (validkeyPress) {
+        modelView = lookAt(eye, at, up);
+        projectionMatrix = perspective(fieldOfView, aspect, zNear, zFar);
+        gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(modelView));
+        gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
         render();
-    } 
+    }
 }
 
-function strafeLeft(){
+function strafeLeft() {
     var newAt = vec3(at[0] - moveSpeed, at[1], at[2]);
     at = newAt;
     var newEye = vec3(eye[0] - moveSpeed, eye[1], eye[2]);
     eye = newEye;
 }
 
-function strafeRight(){
+function strafeRight() {
     var newAt = vec3(at[0] + moveSpeed, at[1], at[2]);
     at = newAt;
     var newEye = vec3(eye[0] + moveSpeed, eye[1], eye[2]);
     eye = newEye;
 }
 
-function moveUp(){
+function moveUp() {
     var newAt = vec3(at[0], at[1] + moveSpeed, at[2]);
     at = newAt;
     var newEye = vec3(eye[0], eye[1] + moveSpeed, eye[2]);
     eye = newEye;
 }
 
-function moveDown(){
+function moveDown() {
     var newAt = vec3(at[0], at[1] - moveSpeed, at[2]);
     at = newAt;
     var newEye = vec3(eye[0], eye[1] - moveSpeed, eye[2]);
     eye = newEye;
+}
+
+function zoom() {
+    var newAt = vec3(at[0], at[1], at[2] - moveSpeed);
+    at = newAt;
+    var newEye = vec3(eye[0], eye[1], eye[2] - moveSpeed);
+    eye = newEye;
+}
+
+function further() {
+    var newAt = vec3(at[0], at[1], at[2] + moveSpeed);
+    at = newAt;
+    var newEye = vec3(eye[0], eye[1], eye[2] + moveSpeed);
+    eye = newEye;
+}
+
+function turnRight(){
+    
+    var dir = vec4(at[0]-eye[0], at[1]-eye[1], at[2]-eye[2], 0);
+    var rotateMatrix = rotateY(10);
+    var newAt = mult(rotateMatrix, dir);
+    var finalAt = vec3(eye[0] + newAt[0], eye[1] + newAt[1], eye[2] + newAt[2]);
+    at = finalAt;
+}
+
+function turnLeft(){
+    var dir = vec4(at[0]-eye[0], at[1]-eye[1], at[2]-eye[2], 0);
+    var rotateMatrix = rotateY(-10);
+    var newAt = mult(rotateMatrix, dir);
+    var finalAt = vec3(eye[0] + newAt[0], eye[1] + newAt[1], eye[2] + newAt[2]);
+    at = finalAt;
 }
 
 //called when canvas is clicked
@@ -263,27 +294,27 @@ function processSteps() {
 function addSquaresToCanvas(steps, topLeftX, topLeftY, width) {
 
     //draw the current middle
-    var squareTopLeftX = topLeftX+width;
-    var squareTopLeftY = topLeftY-width;
+    var squareTopLeftX = topLeftX + width;
+    var squareTopLeftY = topLeftY - width;
     addSquare(squareTopLeftX, squareTopLeftY, width);
-    
+
     if (steps > 1) {
         steps--;
-        var squareWidth = width/3;
+        var squareWidth = width / 3;
         //add the row above
         addSquaresToCanvas(steps, topLeftX, topLeftY, squareWidth);
         addSquaresToCanvas(steps, topLeftX + width, topLeftY, squareWidth);
-        addSquaresToCanvas(steps, topLeftX + (2* width), topLeftY, squareWidth);
+        addSquaresToCanvas(steps, topLeftX + (2 * width), topLeftY, squareWidth);
 
         //add left and right
-        addSquaresToCanvas(steps, topLeftX, topLeftY-width, squareWidth);
-        addSquaresToCanvas(steps, topLeftX + (2*width), topLeftY-width, squareWidth);
+        addSquaresToCanvas(steps, topLeftX, topLeftY - width, squareWidth);
+        addSquaresToCanvas(steps, topLeftX + (2 * width), topLeftY - width, squareWidth);
 
         //add row below
-        addSquaresToCanvas(steps, topLeftX, topLeftY-(2* width), squareWidth);
+        addSquaresToCanvas(steps, topLeftX, topLeftY - (2 * width), squareWidth);
         addSquaresToCanvas(steps, topLeftX + width, topLeftY - (2 * width), squareWidth);
-        addSquaresToCanvas(steps, topLeftX + (2* width), topLeftY- (2*width), squareWidth);
-        
+        addSquaresToCanvas(steps, topLeftX + (2 * width), topLeftY - (2 * width), squareWidth);
+
     }
 
 }
@@ -292,20 +323,20 @@ function addSquaresToCanvas(steps, topLeftX, topLeftY, width) {
 function addSquare(xVal, yVal, width) {
 
     //pass these 2 into a seperate buffer
-    var translationValueX = xVal + width/2;
-    var translationValueY = yVal - width/2;
+    var translationValueX = xVal + width / 2;
+    var translationValueY = yVal - width / 2;
 
-    var cubeDepth = width/2;
+    var cubeDepth = width / 2;
 
     var newSquare = [
         //front facing side
         vec3(xVal, yVal, cubeDepth),
         vec3(xVal + width, yVal, cubeDepth),
         vec3(xVal + width, yVal, cubeDepth),
-        vec3(xVal + width, yVal- width, cubeDepth),
-        vec3(xVal + width, yVal- width, cubeDepth),
-        vec3(xVal, yVal- width, cubeDepth),
-        vec3(xVal, yVal- width, cubeDepth),
+        vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal, yVal - width, cubeDepth),
+        vec3(xVal, yVal - width, cubeDepth),
         vec3(xVal, yVal, cubeDepth),
 
 
@@ -313,22 +344,22 @@ function addSquare(xVal, yVal, width) {
         vec3(xVal, yVal, -cubeDepth),
         vec3(xVal + width, yVal, -cubeDepth),
         vec3(xVal + width, yVal, -cubeDepth),
-        vec3(xVal + width, yVal- width, -cubeDepth),
-        vec3(xVal + width, yVal- width, -cubeDepth),
-        vec3(xVal, yVal- width, -cubeDepth),
-        vec3(xVal, yVal- width, -cubeDepth),
+        vec3(xVal + width, yVal - width, -cubeDepth),
+        vec3(xVal + width, yVal - width, -cubeDepth),
+        vec3(xVal, yVal - width, -cubeDepth),
+        vec3(xVal, yVal - width, -cubeDepth),
         vec3(xVal, yVal, -cubeDepth),
 
 
         // //lines connecting front and back
         vec3(xVal, yVal, cubeDepth),
         vec3(xVal, yVal, -cubeDepth),
-        vec3(xVal, yVal -width, cubeDepth),
-        vec3(xVal, yVal -width, -cubeDepth),
+        vec3(xVal, yVal - width, cubeDepth),
+        vec3(xVal, yVal - width, -cubeDepth),
         vec3(xVal + width, yVal, cubeDepth),
         vec3(xVal + width, yVal, -cubeDepth),
-        vec3(xVal + width, yVal -width, cubeDepth),
-        vec3(xVal + width, yVal -width, -cubeDepth),
+        vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal + width, yVal - width, -cubeDepth),
     ];
 
     var translation = [
@@ -377,5 +408,5 @@ function render() {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(translations)), gl.STATIC_DRAW);
 
     gl.drawArrays(gl.LINES, 0, vertices.length);
-    
+
 }
