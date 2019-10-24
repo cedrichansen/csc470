@@ -27,11 +27,12 @@ var scaleFactor = 0;
 
 var stopId;
 
-var eye = vec3(0.0, 0.0, -2.5);
-var at = vec3(0.0, 0.0, 1.0);
+var cameraPosition = vec3(0.0, 0.0, -2.5);
+var lookingAt = vec3(0.0, 0.0, 0.0);
 var up = vec3(0.0, 1.0, 0.0);
+var right = vec3(1.0, 0.0, 0.0);
 
-var modelView = lookAt(eye, at, up);
+var modelView = lookAt(cameraPosition, lookingAt, up);
 
 var moveSpeed = 0.01;
 var rotationSpeed = 1;
@@ -190,7 +191,7 @@ function handleKeyboard(e) {
     }
     
     if (validkeyPress) {
-        modelView = lookAt(eye, at, up);
+        modelView = lookAt(cameraPosition, lookingAt, up);
         projectionMatrix = perspective(fieldOfView, aspect, zNear, zFar);
         gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(modelView));
         gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
@@ -199,108 +200,113 @@ function handleKeyboard(e) {
 }
 
 function strafeLeft() {
-    var newAt = vec3(at[0] - moveSpeed, at[1], at[2]);
-    at = newAt;
-    var newEye = vec3(eye[0] - moveSpeed, eye[1], eye[2]);
-    eye = newEye;
+    var change = scale(-moveSpeed, normalize(right));
+    var newAt = add(lookingAt, change);
+    lookingAt = newAt;
+    var newEye = add(cameraPosition, change);
+    cameraPosition = newEye;
 }
 
 function strafeRight() {
-    var newAt = vec3(at[0] + moveSpeed, at[1], at[2]);
-    at = newAt;
-    var newEye = vec3(eye[0] + moveSpeed, eye[1], eye[2]);
-    eye = newEye;
-}
-
-function moveUp() {
-    var newAt = vec3(at[0], at[1] + moveSpeed, at[2]);
-    at = newAt;
-    var newEye = vec3(eye[0], eye[1] + moveSpeed, eye[2]);
-    eye = newEye;
+    var change = scale(moveSpeed, normalize(right));
+    var newAt = add(lookingAt, change);
+    lookingAt = newAt;
+    var newEye = add(cameraPosition, change);
+    cameraPosition = newEye;
 }
 
 function moveDown() {
-    var newAt = vec3(at[0], at[1] - moveSpeed, at[2]);
-    at = newAt;
-    var newEye = vec3(eye[0], eye[1] - moveSpeed, eye[2]);
-    eye = newEye;
+    var change = scale(moveSpeed, normalize(up));
+    var newAt = add(lookingAt, change);
+    lookingAt = newAt;
+    var newEye = add(cameraPosition, change);
+    cameraPosition = newEye;
+}
+
+function moveUp() {
+    var change = scale(-moveSpeed, normalize(up));
+    var newAt = add(lookingAt, change);
+    lookingAt = newAt;
+    var newEye = add(cameraPosition, change);
+    cameraPosition = newEye;
 }
 
 function zoom() {
-    var newAt = vec3(at[0], at[1], at[2] - moveSpeed);
-    at = newAt;
-    var newEye = vec3(eye[0], eye[1], eye[2] - moveSpeed);
-    eye = newEye;
+    var change = scale(moveSpeed, vec3(cameraPosition[0] - lookingAt[0], cameraPosition[1] - lookingAt[1], cameraPosition[2] - lookingAt[2]));
+    var newAt = add(lookingAt, change);
+    lookingAt = newAt;
+    var newEye = add(cameraPosition, change);
+    cameraPosition = newEye;
 }
 
 function further() {
-    var newAt = vec3(at[0], at[1], at[2] + moveSpeed);
-    at = newAt;
-    var newEye = vec3(eye[0], eye[1], eye[2] + moveSpeed);
-    eye = newEye;
+    var change = scale(-moveSpeed, vec3(cameraPosition[0] - lookingAt[0], cameraPosition[1] - lookingAt[1], cameraPosition[2] - lookingAt[2]));
+    var newAt = add(lookingAt, change);
+    lookingAt = newAt;
+    var newEye = add(cameraPosition, change);
+    cameraPosition = newEye;
 }
 
 function turnRight(){
-    
-    var dir = vec4(at[0]-eye[0], at[1]-eye[1], at[2]-eye[2], 0);
-    var rotateMatrix = rotateY(rotationSpeed);
+    var dir = vec4(lookingAt[0]-cameraPosition[0], lookingAt[1]-cameraPosition[1], lookingAt[2]-cameraPosition[2], 0);
+    var rotateMatrix = rotate(rotationSpeed, up);
     var newAt = mult(rotateMatrix, dir);
-    var finalAt = vec3(eye[0] + newAt[0], eye[1] + newAt[1], eye[2] + newAt[2]);
-    at = finalAt;
+    var finalAt = vec3(cameraPosition[0] + newAt[0], cameraPosition[1] + newAt[1], cameraPosition[2] + newAt[2]);
+    lookingAt = finalAt;
+    right = cross(lookingAt, up);
 }
 
 function turnLeft(){
-    var dir = vec4(at[0]-eye[0], at[1]-eye[1], at[2]-eye[2], 0);
-    var rotateMatrix = rotateY(-rotationSpeed);
+    var dir = vec4(lookingAt[0]-cameraPosition[0], lookingAt[1]-cameraPosition[1], lookingAt[2]-cameraPosition[2], 0);
+    var rotateMatrix = rotate(-rotationSpeed, up);
     var newAt = mult(rotateMatrix, dir);
-    var finalAt = vec3(eye[0] + newAt[0], eye[1] + newAt[1], eye[2] + newAt[2]);
-    at = finalAt;
+    var finalAt = vec3(cameraPosition[0] + newAt[0], cameraPosition[1] + newAt[1], cameraPosition[2] + newAt[2]);
+    lookingAt = finalAt;
+    right = cross(lookingAt, up);
 }
 
 function lookUp() {
-    var dir = vec4(at[0]-eye[0], at[1]-eye[1], at[2]-eye[2], 0);
-    var rotateMatrix = rotateX(-rotationSpeed);
+    var dir = vec4(lookingAt[0]-cameraPosition[0], lookingAt[1]-cameraPosition[1], lookingAt[2]-cameraPosition[2], 0);
+    var rotateMatrix = rotate(-rotationSpeed, right);
     var newAt = mult(rotateMatrix, dir);
-    var finalAt = vec3(eye[0] + newAt[0], eye[1] + newAt[1], eye[2] + newAt[2]);
-    at = finalAt;
+    var finalAt = vec3(cameraPosition[0] + newAt[0], cameraPosition[1] + newAt[1], cameraPosition[2] + newAt[2]);
+    lookingAt = finalAt;
 
-    //calculate the up vector
-    var u = vec4(at[0] - up[0], at[1]- up[1], at[2] - up[2], 0);
+    var u = vec4(lookingAt[0] - up[0], lookingAt[1]- up[1], lookingAt[2] - up[2], 0);
     var newUp = mult(rotateMatrix, u);
-    var finalUp = vec3(at[0] - newUp[0], at[1]- newUp[1], at[2] - newUp[2]);
+    var finalUp = vec3(lookingAt[0] - newUp[0], lookingAt[1]- newUp[1], lookingAt[2] - newUp[2]);
     up = finalUp;
 }
 
 function lookDown() {
-    var dir = vec4(at[0]-eye[0], at[1]-eye[1], at[2]-eye[2], 0);
-    var rotateMatrix = rotateX(rotationSpeed);
+    var dir = vec4(lookingAt[0]-cameraPosition[0], lookingAt[1]-cameraPosition[1], lookingAt[2]-cameraPosition[2], 0);
+    var rotateMatrix = rotate(rotationSpeed, right);
     var newAt = mult(rotateMatrix, dir);
-    var finalAt = vec3(eye[0] + newAt[0], eye[1] + newAt[1], eye[2] + newAt[2]);
-    at = finalAt;
+    var finalAt = vec3(cameraPosition[0] + newAt[0], cameraPosition[1] + newAt[1], cameraPosition[2] + newAt[2]);
+    lookingAt = finalAt;
 
-    //calculate the up vector
-    var u = vec4(at[0] - up[0], at[1]- up[1], at[2] - up[2], 0);
+    var u = vec4(lookingAt[0] - up[0], lookingAt[1]- up[1], lookingAt[2] - up[2], 0);
     var newUp = mult(rotateMatrix, u);
-    var finalUp = vec3(at[0] - newUp[0], at[1]- newUp[1], at[2] - newUp[2]);
+    var finalUp = vec3(lookingAt[0] - newUp[0], lookingAt[1]- newUp[1], lookingAt[2] - newUp[2]);
     up = finalUp;
 }
 
 function rollLeft(){
-    //calculate the up vector
-    var rotateMatrix = rotateZ(rotationSpeed);
-    var u = vec4(at[0] - up[0], at[1]- up[1], at[2] - up[2], 0);
+    var rotateMatrix = rotate(rotationSpeed, lookingAt);
+    var u = vec4(lookingAt[0] - up[0], lookingAt[1]- up[1], lookingAt[2] - up[2], 0);
     var newUp = mult(rotateMatrix, u);
-    var finalUp = vec3(at[0] - newUp[0], at[1]- newUp[1], at[2] - newUp[2]);
+    var finalUp = vec3(lookingAt[0] - newUp[0], lookingAt[1]- newUp[1], lookingAt[2] - newUp[2]);
     up = finalUp;
+    right = cross(lookingAt, up);
 }
 
 function rollRight(){
-    //calculate the up vector
-    var rotateMatrix = rotateZ(-rotationSpeed);
-    var u = vec4(at[0] - up[0], at[1]- up[1], at[2] - up[2], 0);
+    var rotateMatrix = rotate(-rotationSpeed, lookingAt);
+    var u = vec4(lookingAt[0] - up[0], lookingAt[1]- up[1], lookingAt[2] - up[2], 0);
     var newUp = mult(rotateMatrix, u);
-    var finalUp = vec3(at[0] - newUp[0], at[1]- newUp[1], at[2] - newUp[2]);
+    var finalUp = vec3(lookingAt[0] - newUp[0], lookingAt[1]- newUp[1], lookingAt[2] - newUp[2]);
     up = finalUp;
+    right = cross(lookingAt, up);
 }
 
 //called when canvas is clicked
