@@ -30,6 +30,7 @@ var stopId;
 var cameraPosition = vec3(0.0, 0.0, -2.5);
 var lookingAt = vec3(0.0, 0.0, 1.0);
 var up = vec3(0.0, 1.0, 0.0);
+var right = vec3(1.0, 0.0, 0.0);
 
 var modelView = lookAt(cameraPosition, lookingAt, up);
 
@@ -203,8 +204,6 @@ function strafeLeft() {
     lookingAt = newAt;
     var newEye = vec3(cameraPosition[0] - moveSpeed, cameraPosition[1], cameraPosition[2]);
     cameraPosition = newEye;
-    var newUp = vec3(up[0] - moveSpeed, up[1] , up[2]);
-    up = newUp;
 }
 
 function strafeRight() {
@@ -212,8 +211,6 @@ function strafeRight() {
     lookingAt = newAt;
     var newEye = vec3(cameraPosition[0] + moveSpeed, cameraPosition[1], cameraPosition[2]);
     cameraPosition = newEye;
-    var newUp = vec3(up[0] + moveSpeed, up[1] , up[2]);
-    up = newUp;
 }
 
 function moveUp() {
@@ -221,8 +218,6 @@ function moveUp() {
     lookingAt = newAt;
     var newEye = vec3(cameraPosition[0], cameraPosition[1] + moveSpeed, cameraPosition[2]);
     cameraPosition = newEye;
-    var newUp = vec3(up[0], up[1] + moveSpeed, up[2]);
-    up = newUp;
 }
 
 function moveDown() {
@@ -230,8 +225,6 @@ function moveDown() {
     lookingAt = newAt;
     var newEye = vec3(cameraPosition[0], cameraPosition[1] - moveSpeed, cameraPosition[2]);
     cameraPosition = newEye;
-    var newUp = vec3(up[0], up[1] - moveSpeed, up[2]);
-    up = newUp;
 }
 
 function zoom() {
@@ -239,8 +232,6 @@ function zoom() {
     lookingAt = newAt;
     var newEye = vec3(cameraPosition[0], cameraPosition[1], cameraPosition[2] - moveSpeed);
     cameraPosition = newEye;
-    var newUp = vec3(up[0], up[1] , up[2]- moveSpeed);
-    up = newUp;
 }
 
 function further() {
@@ -248,30 +239,30 @@ function further() {
     lookingAt = newAt;
     var newEye = vec3(cameraPosition[0], cameraPosition[1], cameraPosition[2] + moveSpeed);
     cameraPosition = newEye;
-    var newUp = vec3(up[0], up[1] , up[2] + moveSpeed);
-    up = newUp;
 }
 
 function turnRight(){
     
     var dir = vec4(lookingAt[0]-cameraPosition[0], lookingAt[1]-cameraPosition[1], lookingAt[2]-cameraPosition[2], 0);
-    var rotateMatrix = rotateY(rotationSpeed);
+    var rotateMatrix = rotate(rotationSpeed, up);
     var newAt = mult(rotateMatrix, dir);
     var finalAt = vec3(cameraPosition[0] + newAt[0], cameraPosition[1] + newAt[1], cameraPosition[2] + newAt[2]);
     lookingAt = finalAt;
+    right = cross(lookingAt, up);
 }
 
 function turnLeft(){
     var dir = vec4(lookingAt[0]-cameraPosition[0], lookingAt[1]-cameraPosition[1], lookingAt[2]-cameraPosition[2], 0);
-    var rotateMatrix = rotateY(-rotationSpeed);
+    var rotateMatrix = rotate(-rotationSpeed, up);
     var newAt = mult(rotateMatrix, dir);
     var finalAt = vec3(cameraPosition[0] + newAt[0], cameraPosition[1] + newAt[1], cameraPosition[2] + newAt[2]);
     lookingAt = finalAt;
+    right = cross(lookingAt, up);
 }
 
 function lookUp() {
     var dir = vec4(lookingAt[0]-cameraPosition[0], lookingAt[1]-cameraPosition[1], lookingAt[2]-cameraPosition[2], 0);
-    var rotateMatrix = rotateX(-rotationSpeed);
+    var rotateMatrix = rotate(-rotationSpeed, right);
     var newAt = mult(rotateMatrix, dir);
     var finalAt = vec3(cameraPosition[0] + newAt[0], cameraPosition[1] + newAt[1], cameraPosition[2] + newAt[2]);
     lookingAt = finalAt;
@@ -285,7 +276,7 @@ function lookUp() {
 
 function lookDown() {
     var dir = vec4(lookingAt[0]-cameraPosition[0], lookingAt[1]-cameraPosition[1], lookingAt[2]-cameraPosition[2], 0);
-    var rotateMatrix = rotateX(rotationSpeed);
+    var rotateMatrix = rotate(rotationSpeed, right);
     var newAt = mult(rotateMatrix, dir);
     var finalAt = vec3(cameraPosition[0] + newAt[0], cameraPosition[1] + newAt[1], cameraPosition[2] + newAt[2]);
     lookingAt = finalAt;
@@ -299,20 +290,22 @@ function lookDown() {
 
 function rollLeft(){
     //calculate the up vector
-    var rotateMatrix = rotateZ(rotationSpeed);
+    var rotateMatrix = rotate(rotationSpeed, lookingAt);
     var u = vec4(lookingAt[0] - up[0], lookingAt[1]- up[1], lookingAt[2] - up[2], 0);
     var newUp = mult(rotateMatrix, u);
     var finalUp = vec3(lookingAt[0] - newUp[0], lookingAt[1]- newUp[1], lookingAt[2] - newUp[2]);
     up = finalUp;
+    right = cross(lookingAt, up);
 }
 
 function rollRight(){
     //calculate the up vector
-    var rotateMatrix = rotateZ(-rotationSpeed);
+    var rotateMatrix = rotate(-rotationSpeed, lookingAt);
     var u = vec4(lookingAt[0] - up[0], lookingAt[1]- up[1], lookingAt[2] - up[2], 0);
     var newUp = mult(rotateMatrix, u);
     var finalUp = vec3(lookingAt[0] - newUp[0], lookingAt[1]- newUp[1], lookingAt[2] - newUp[2]);
     up = finalUp;
+    right = cross(lookingAt, up);
 }
 
 //called when canvas is clicked
