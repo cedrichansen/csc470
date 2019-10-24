@@ -200,44 +200,50 @@ function handleKeyboard(e) {
 }
 
 function strafeLeft() {
-    var newAt = vec3(lookingAt[0] - moveSpeed, lookingAt[1], lookingAt[2]);
+    var change = scale(-moveSpeed, normalize(right));
+    var newAt = add(lookingAt, change);
     lookingAt = newAt;
-    var newEye = vec3(cameraPosition[0] - moveSpeed , cameraPosition[1], cameraPosition[2]);
+    var newEye = add(cameraPosition, change);
     cameraPosition = newEye;
 }
 
 function strafeRight() {
-    var newAt = vec3(lookingAt[0] + moveSpeed, lookingAt[1], lookingAt[2]);
+    var change = scale(moveSpeed, normalize(right));
+    var newAt = add(lookingAt, change);
     lookingAt = newAt;
-    var newEye = vec3(cameraPosition[0] + moveSpeed, cameraPosition[1], cameraPosition[2]);
+    var newEye = add(cameraPosition, change);
     cameraPosition = newEye;
 }
 
 function moveDown() {
-    var newAt = vec3(lookingAt[0], lookingAt[1] + moveSpeed, lookingAt[2]);
+    var change = scale(moveSpeed, normalize(up));
+    var newAt = add(lookingAt, change);
     lookingAt = newAt;
-    var newEye = vec3(cameraPosition[0], cameraPosition[1] + moveSpeed, cameraPosition[2]);
+    var newEye = add(cameraPosition, change);
     cameraPosition = newEye;
 }
 
 function moveUp() {
-    var newAt = vec3(lookingAt[0], lookingAt[1] - moveSpeed, lookingAt[2]);
+    var change = scale(-moveSpeed, normalize(up));
+    var newAt = add(lookingAt, change);
     lookingAt = newAt;
-    var newEye = vec3(cameraPosition[0], cameraPosition[1] - moveSpeed, cameraPosition[2]);
+    var newEye = add(cameraPosition, change);
     cameraPosition = newEye;
 }
 
 function zoom() {
-    var newAt = vec3(lookingAt[0], lookingAt[1], lookingAt[2] - moveSpeed);
+    var change = scale(moveSpeed, vec3(cameraPosition[0] - lookingAt[0], cameraPosition[1] - lookingAt[1], cameraPosition[2] - lookingAt[2]));
+    var newAt = add(lookingAt, change);
     lookingAt = newAt;
-    var newEye = vec3(cameraPosition[0], cameraPosition[1], cameraPosition[2] - moveSpeed);
+    var newEye = add(cameraPosition, change);
     cameraPosition = newEye;
 }
 
 function further() {
-    var newAt = vec3(lookingAt[0], lookingAt[1], lookingAt[2] + moveSpeed);
+    var change = scale(-moveSpeed, vec3(cameraPosition[0] - lookingAt[0], cameraPosition[1] - lookingAt[1], cameraPosition[2] - lookingAt[2]));
+    var newAt = add(lookingAt, change);
     lookingAt = newAt;
-    var newEye = vec3(cameraPosition[0], cameraPosition[1], cameraPosition[2] + moveSpeed);
+    var newEye = add(cameraPosition, change);
     cameraPosition = newEye;
 }
 
