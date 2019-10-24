@@ -109,13 +109,6 @@ window.onload = function init() {
         changeRotationDirection();
     }, false);
 
-    var scaleFactorSlider = document.getElementById("scaleSlider");
-    scaleFactorSlider.addEventListener('change', function (event) {
-        scaleFactor = scaleFactorSlider.value * 0.1;
-        gl.uniform1f(gl.getUniformLocation(program, "scaleFactor"), scaleFactor);
-        render();
-    })
-
     //following 3 event listeners are for toggle switches. 
     //When pressed, the rotation speed changes accordingly
     var xToggle = this.document.getElementById("rotationX");
