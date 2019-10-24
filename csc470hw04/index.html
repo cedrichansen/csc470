@@ -111,12 +111,8 @@ void main(){
 
   vec4 finalVertex = returnMatrix * rotatedVertex;
 
-  float zToDivideBy = 1.0 + finalVertex.z * scaleFactor;
-
-  vec4 cameraVert = modelViewMatrix * finalVertex;
-  //vec4 perspectiveV = vec4(cameraVert.xy/zToDivideBy, cameraVert.zw);
+  vec4 cameraVert = projectionMatrix *  modelViewMatrix * finalVertex;
   gl_Position = cameraVert;
-
 
 }
 

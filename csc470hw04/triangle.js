@@ -27,8 +27,8 @@ var scaleFactor = 0;
 
 var stopId;
 
-var eye = vec3(0.0, 0.0, 0.0);
-var at = vec3(0.0, 0.0, -1.0);
+var eye = vec3(0.0, 0.0, -2.5);
+var at = vec3(0.0, 0.0, 1.0);
 var up = vec3(0.0, 1.0, 0.0);
 
 var modelView = lookAt(eye, at, up);
@@ -36,9 +36,9 @@ var modelView = lookAt(eye, at, up);
 var moveSpeed = 0.05;
 
 var aspect = 1;
-var zNear = 1;
+var zNear = 0;
 var zFar = 1000;
-var fieldOfView = 30;
+var fieldOfView = 50;
 
 var projectionMatrix = perspective(fieldOfView, aspect, zNear, zFar);
 
