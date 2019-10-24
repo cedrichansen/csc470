@@ -114,7 +114,6 @@ window.onload = function init() {
         render();
     })
 
-
     //following 3 event listeners are for toggle switches. 
     //When pressed, the rotation speed changes accordingly
     var xToggle = this.document.getElementById("rotationX");
@@ -175,9 +174,20 @@ function handleKeyboard(e) {
     } else if (e.key == "x") {
         turnLeft();
         validkeyPress = true;
+    } else if (e.key == "u"){
+        lookUp();
+        validkeyPress = true;
+    } else if (e.key == "j") {
+        lookDown();
+        validkeyPress = true;
+    } else if (e.key == "y") {
+        rollLeft();
+        validkeyPress = true;
+    } else if (e.key == "i") {
+        rollRight();
+        validkeyPress = true;
     }
     
-
     if (validkeyPress) {
         modelView = lookAt(eye, at, up);
         projectionMatrix = perspective(fieldOfView, aspect, zNear, zFar);
@@ -244,6 +254,40 @@ function turnLeft(){
     var newAt = mult(rotateMatrix, dir);
     var finalAt = vec3(eye[0] + newAt[0], eye[1] + newAt[1], eye[2] + newAt[2]);
     at = finalAt;
+}
+
+function lookUp() {
+    var dir = vec4(at[0]-eye[0], at[1]-eye[1], at[2]-eye[2], 0);
+    var rotateMatrix = rotateX(-10);
+    var newAt = mult(rotateMatrix, dir);
+    var finalAt = vec3(eye[0] + newAt[0], eye[1] + newAt[1], eye[2] + newAt[2]);
+    at = finalAt;
+}
+
+function lookDown() {
+    var dir = vec4(at[0]-eye[0], at[1]-eye[1], at[2]-eye[2], 0);
+    var rotateMatrix = rotateX(10);
+    var newAt = mult(rotateMatrix, dir);
+    var finalAt = vec3(eye[0] + newAt[0], eye[1] + newAt[1], eye[2] + newAt[2]);
+    at = finalAt;
+}
+
+function rollLeft(){
+    var dir = vec4(at[0]-eye[0], at[1]-eye[1], at[2]-eye[2], 0);
+    var rotateMatrix = rotateZ(-10);
+    var newAt = mult(rotateMatrix, dir);
+    var finalAt = vec3(eye[0] + newAt[0], eye[1] + newAt[1], eye[2] + newAt[2]);
+    at = finalAt;
+}
+
+function rollRight(){
+    function rollLeft(){
+        var dir = vec4(at[0]-eye[0], at[1]-eye[1], at[2]-eye[2], 0);
+        var rotateMatrix = rotateZ(10);
+        var newAt = mult(rotateMatrix, dir);
+        var finalAt = vec3(eye[0] + newAt[0], eye[1] + newAt[1], eye[2] + newAt[2]);
+        at = finalAt;
+    }
 }
 
 //called when canvas is clicked
