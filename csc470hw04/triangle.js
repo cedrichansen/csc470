@@ -259,8 +259,8 @@ function turnLeft(){
 }
 
 function lookUp() {
-    var dir = vec4(lookingAt[0]-cameraPosition[0], lookingAt[1]-cameraPosition[1], lookingAt[2]-cameraPosition[2], 0);
     var rotateMatrix = rotate(-rotationSpeed, right);
+    var dir = vec4(lookingAt[0]-cameraPosition[0], lookingAt[1]-cameraPosition[1], lookingAt[2]-cameraPosition[2], 0);
     var newAt = mult(rotateMatrix, dir);
     var finalAt = vec3(cameraPosition[0] + newAt[0], cameraPosition[1] + newAt[1], cameraPosition[2] + newAt[2]);
     lookingAt = finalAt;
@@ -272,8 +272,8 @@ function lookUp() {
 }
 
 function lookDown() {
-    var dir = vec4(lookingAt[0]-cameraPosition[0], lookingAt[1]-cameraPosition[1], lookingAt[2]-cameraPosition[2], 0);
     var rotateMatrix = rotate(rotationSpeed, right);
+    var dir = vec4(lookingAt[0]-cameraPosition[0], lookingAt[1]-cameraPosition[1], lookingAt[2]-cameraPosition[2], 0);
     var newAt = mult(rotateMatrix, dir);
     var finalAt = vec3(cameraPosition[0] + newAt[0], cameraPosition[1] + newAt[1], cameraPosition[2] + newAt[2]);
     lookingAt = finalAt;
@@ -285,7 +285,8 @@ function lookDown() {
 }
 
 function rollLeft(){
-    var rotateMatrix = rotate(rotationSpeed, lookingAt);
+    var lookingAtRelative = add(lookingAt, cameraPosition);
+    var rotateMatrix = rotate(rotationSpeed, lookingAtRelative);
     var u = vec4(lookingAt[0] - up[0], lookingAt[1]- up[1], lookingAt[2] - up[2], 0);
     var newUp = mult(rotateMatrix, u);
     var finalUp = vec3(lookingAt[0] - newUp[0], lookingAt[1]- newUp[1], lookingAt[2] - newUp[2]);
@@ -294,7 +295,8 @@ function rollLeft(){
 }
 
 function rollRight(){
-    var rotateMatrix = rotate(-rotationSpeed, lookingAt);
+    var lookingAtRelative = scale(-1, add(lookingAt, cameraPosition));
+    var rotateMatrix = rotate(rotationSpeed, lookingAtRelative);
     var u = vec4(lookingAt[0] - up[0], lookingAt[1]- up[1], lookingAt[2] - up[2], 0);
     var newUp = mult(rotateMatrix, u);
     var finalUp = vec3(lookingAt[0] - newUp[0], lookingAt[1]- newUp[1], lookingAt[2] - newUp[2]);
