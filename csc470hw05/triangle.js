@@ -3,6 +3,7 @@
 var gl;
 var vertices = [];
 var translations = [];
+var normals = [];
 
 var numberOfSteps = 1;
 var program;
@@ -22,6 +23,7 @@ var rotationDirection = 1;
 
 var positionBuffer;
 var translationBuffer;
+var normalBuffer;
 
 var scaleFactor = 0;
 
@@ -72,6 +74,10 @@ window.onload = function init() {
     gl.bindBuffer(gl.ARRAY_BUFFER, translationBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(translations)), gl.STATIC_DRAW);
 
+    normalBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    this.gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(this.normals)), gl.STATIC_DRAW);
+
 
     var vPosition = gl.getAttribLocation(program, "vPosition");
     gl.enableVertexAttribArray(vPosition);
@@ -83,6 +89,11 @@ window.onload = function init() {
     gl.enableVertexAttribArray(vTranslation);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.translationBuffer);
     gl.vertexAttribPointer(vTranslation, 3, gl.FLOAT, false, 0, 0);
+
+    var vNormal = gl.getAttribLocation(program, "vNormal");
+    gl.enableVertexAttribArray(vNormal);
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0,0);
 
     gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(modelView));
     gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
@@ -340,6 +351,7 @@ function updateSteps() {
     numberOfSquares = 0;
     vertices = [];
     translations = [];
+    normals = [];
     processSteps();
     render();
 }
@@ -481,8 +493,55 @@ function addSquare(xVal, yVal, width) {
 
     ]
 
+    var normal = [
+        vec3(0,0, -1),
+        vec3(0,0, -1),
+        vec3(0,0, -1),
+        vec3(0,0, -1),
+        vec3(0,0, -1),
+        vec3(0,0, -1),
+        vec3(0,0, -1),
+
+        vec3(0,0, 1),
+        vec3(0,0, 1),
+        vec3(0,0, 1),
+        vec3(0,0, 1),
+        vec3(0,0, 1),
+        vec3(0,0, 1),
+        vec3(0,0, 1),
+
+        vec3(1,0,0),
+        vec3(1,0,0),
+        vec3(1,0,0),
+        vec3(1,0,0),
+        vec3(1,0,0),
+        vec3(1,0,0),
+
+        vec3(-1, 0, 0),
+        vec3(-1, 0, 0),
+        vec3(-1, 0, 0),
+        vec3(-1, 0, 0),
+        vec3(-1, 0, 0),
+        vec3(-1, 0, 0),
+
+        vec3(0,1,0),
+        vec3(0,1,0),
+        vec3(0,1,0),
+        vec3(0,1,0),
+        vec3(0,1,0),
+        vec3(0,1,0),
+
+        vec3(0,-1,0),
+        vec3(0,-1,0),
+        vec3(0,-1,0),
+        vec3(0,-1,0),
+        vec3(0,-1,0),
+        vec3(0,-1,0),
+    ]
+
     Array.prototype.push.apply(vertices, newSquare);
     Array.prototype.push.apply(translations, translation);
+    Array.prototype.push.apply(normals, normal);
 
     numberOfSquares++;
 }
@@ -495,6 +554,9 @@ function render() {
 
     gl.bindBuffer(gl.ARRAY_BUFFER, translationBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(translations)), gl.STATIC_DRAW);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(normals)), gl.STATIC_DRAW);
 
     gl.drawArrays(gl.TRIANGLES, 0, vertices.length);
 
