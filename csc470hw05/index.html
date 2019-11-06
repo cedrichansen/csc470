@@ -124,9 +124,8 @@ void main(){
   gl_Position = cameraVert;
   normal = vNormal;
   vUV = uv;
-
-  //vec3 worldNormal = (normalMatrix * vec4(vNormal,1.0)).xyz
-  float diffuse = max(0.0, dot(vNormal, lightDirection));
+  vec3 rotatedNormal = vec3((rotationMatrixX * rotationMatrixY * rotationMatrixZ * vec4(vNormal, 1.0)));
+  float diffuse = max(0.0, dot(rotatedNormal, lightDirection));
 
   vBrightness = ambient + diffuse;
 
