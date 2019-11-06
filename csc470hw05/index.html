@@ -65,10 +65,17 @@
   </style>
   <script id="vertex-shader" type="x-shader/x-vertex">
 
+const vec3 lightDirection = normalize(vec3(1.0, 1.0, -1.0));
+const float ambient = 0.1;
+
 attribute vec3 vPosition;
 attribute vec3 vTranslation;
 attribute vec3 vNormal;
 attribute vec2 uv;
+
+varying vec3 normal;
+varying vec2 vUV;
+varying float vBrightness;
 
 uniform float vRotationAngleX;
 uniform float vRotationAngleY;
@@ -76,11 +83,8 @@ uniform float vRotationAngleZ;
 
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
+uniform mat4 normalMatrix;
 
-uniform float scaleFactor;
-
-varying vec3 normal;
-varying vec2 vUV;
 
 void main(){
 
@@ -121,6 +125,11 @@ void main(){
   normal = vNormal;
   vUV = uv;
 
+  //vec3 worldNormal = (normalMatrix * vec4(vNormal,1.0)).xyz
+  float diffuse = max(0.0, dot(vNormal, lightDirection));
+
+  vBrightness = ambient + diffuse;
+
 }
 
 </script>
@@ -129,13 +138,17 @@ precision mediump float;
 
 varying vec3 normal;
 varying vec2 vUV;
+varying float vBrightness;
+
 uniform sampler2D textureID;
 
 uniform vec3 colour;
 
 void main(){
 
-    gl_FragColor = texture2D(textureID, vUV);
+    vec4 texel = texture2D(textureID, vUV);
+    texel.xyz *= vBrightness;
+    gl_FragColor = texel;
 }
 
 </script>
