@@ -51,12 +51,12 @@ var projectionMatrix = perspective(fieldOfView, aspect, zNear, zFar);
 var tex;
 
 const uvData = [
-    0,0, 1,0, 0,1, 1,0, 0,1, 1,1,
-    0,0, 1,0, 0,1, 1,0, 0,1, 1,1,
-    0,0, 1,0, 0,1, 1,0, 0,1, 1,1,
-    0,0, 1,0, 0,1, 1,0, 0,1, 1,1,
-    0,0, 1,0, 0,1, 1,0, 0,1, 1,1,
-    0,0, 1,0, 0,1, 1,0, 0,1, 1,1,
+    1,0, 0,0, 0,1, 1,0, 1,1, 0,1, 
+    1,0, 0,0, 0,1, 1,0, 1,1, 0,1,  
+    1,0, 0,0, 0,1, 1,0, 1,1, 0,1,  
+    1,0, 0,0, 0,1, 1,0, 1,1, 0,1,  
+    1,0, 0,0, 0,1, 1,0, 1,1, 0,1,  
+    1,0, 0,0, 0,1, 1,0, 1,1, 0,1,  
 ]
 
 
@@ -96,7 +96,7 @@ window.onload = function init() {
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     this.gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(uvCoords)), gl.STATIC_DRAW);
 
-    tex = loadTexture("https://raw.githubusercontent.com/invent-box/Learn-WebGL/master/10-Textures/public/textures/default_lava.png");
+    tex = loadTexture("https://raw.githubusercontent.com/cedrichansen/csc470/012462251769427c5705eaee9feb47bfda4fb719/csc470hw05/box.jpg?token=AGYWSLTNAD32W4HNJOIXG425YL2ZA");
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this.tex);
@@ -454,13 +454,13 @@ function addSquare(xVal, yVal, width) {
 
     var newSquare = [
         //front facing side
-        vec3(xVal, yVal, cubeDepth),
+        vec3(xVal + width, yVal - width, cubeDepth),
         vec3(xVal + width, yVal, cubeDepth),
-        vec3(xVal + width, yVal - width, cubeDepth),
         vec3(xVal, yVal, cubeDepth),
-        vec3(xVal, yVal - width, cubeDepth),
         vec3(xVal + width, yVal - width, cubeDepth),
-
+        vec3(xVal, yVal - width, cubeDepth),
+        vec3(xVal, yVal, cubeDepth),
+        
         //back side
         vec3(xVal, yVal, -cubeDepth),
         vec3(xVal + width, yVal, -cubeDepth),
@@ -468,34 +468,34 @@ function addSquare(xVal, yVal, width) {
         vec3(xVal, yVal, -cubeDepth),
         vec3(xVal, yVal - width, -cubeDepth),
         vec3(xVal + width, yVal - width, -cubeDepth),
-
+        
         //right side
-        vec3(xVal, yVal, -cubeDepth), 
         vec3(xVal, yVal - width, cubeDepth),
         vec3(xVal, yVal, cubeDepth),
+        vec3(xVal, yVal, -cubeDepth), 
         vec3(xVal, yVal - width, cubeDepth),
         vec3(xVal, yVal - width, - cubeDepth),
         vec3(xVal, yVal, -cubeDepth),
-
+            
         //left side
-        vec3(xVal + width, yVal, -cubeDepth), 
         vec3(xVal + width, yVal - width, cubeDepth),
         vec3(xVal + width, yVal, cubeDepth),
+        vec3(xVal + width, yVal, -cubeDepth), 
         vec3(xVal + width, yVal - width, cubeDepth),
         vec3(xVal + width, yVal - width, - cubeDepth),
         vec3(xVal + width, yVal, -cubeDepth),
 
         //top
-        vec3(xVal, yVal, cubeDepth),
         vec3(xVal, yVal, -cubeDepth),
+        vec3(xVal, yVal, cubeDepth),
         vec3(xVal + width, yVal, cubeDepth),
         vec3(xVal, yVal, -cubeDepth),
         vec3(xVal + width, yVal, -cubeDepth),
         vec3(xVal + width, yVal, cubeDepth),
 
         //bottom
-        vec3(xVal, yVal - width, cubeDepth),
         vec3(xVal, yVal - width, -cubeDepth),
+        vec3(xVal, yVal - width, cubeDepth),
         vec3(xVal + width, yVal - width, cubeDepth),
         vec3(xVal, yVal - width, -cubeDepth),
         vec3(xVal + width, yVal - width, -cubeDepth),
