@@ -4,6 +4,7 @@ var gl;
 var vertices = [];
 var translations = [];
 var normals = [];
+var uvCoords = [];
 
 var numberOfSteps = 1;
 var program;
@@ -24,6 +25,7 @@ var rotationDirection = 1;
 var positionBuffer;
 var translationBuffer;
 var normalBuffer;
+var uvBuffer;
 
 var scaleFactor = 0;
 
@@ -45,6 +47,18 @@ var zFar = 1000;
 var fieldOfView = 50;
 
 var projectionMatrix = perspective(fieldOfView, aspect, zNear, zFar);
+
+var brick;
+
+const uvData = [
+    1,1,1,0,0,1,0,1,1,0,0,0,
+    1,1,1,0,0,1,0,1,1,0,0,0,
+    1,1,1,0,0,1,0,1,1,0,0,0,
+    1,1,1,0,0,1,0,1,1,0,0,0,
+    1,1,1,0,0,1,0,1,1,0,0,0,
+    1,1,1,0,0,1,0,1,1,0,0,0,
+]
+
 
 window.onload = function init() {
     var canvas = document.getElementById("gl-canvas");
@@ -78,6 +92,16 @@ window.onload = function init() {
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
     this.gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(this.normals)), gl.STATIC_DRAW);
 
+    uvBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+    this.gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(uvCoords)), gl.STATIC_DRAW);
+
+    brick = loadTexture("https://raw.githubusercontent.com/invent-box/Learn-WebGL/master/10-Textures/public/textures/default_brick.png");
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this.brick);
+
+    gl.uniform1i(gl.getUniformLocation(program, "textureID"), 0);
 
     var vPosition = gl.getAttribLocation(program, "vPosition");
     gl.enableVertexAttribArray(vPosition);
@@ -94,6 +118,11 @@ window.onload = function init() {
     gl.enableVertexAttribArray(vNormal);
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
     gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0,0);
+
+    var uvLocation = gl.getAttribLocation(program, "uv");
+    gl.enableVertexAttribArray(uvLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+    gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0,0);
 
     gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(modelView));
     gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
@@ -156,6 +185,23 @@ window.onload = function init() {
 
     render();
 };
+
+function loadTexture(url) {
+    const texture = gl.createTexture();
+    const image = new Image();
+
+   image.onload = e => {
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    gl.generateMipmap(gl.TEXTURE_2D);
+
+   }; 
+    
+   image.crossOrigin = "";
+   image.src = url;
+   return texture;
+}
+
 
 function handleKeyboard(e) {
     var validkeyPress = false;
@@ -355,6 +401,7 @@ function updateSteps() {
     vertices = [];
     translations = [];
     normals = [];
+    uvCoords = [];
     processSteps();
     render();
 }
@@ -545,6 +592,7 @@ function addSquare(xVal, yVal, width) {
     Array.prototype.push.apply(vertices, newSquare);
     Array.prototype.push.apply(translations, translation);
     Array.prototype.push.apply(normals, normal);
+    Array.prototype.push.apply(uvCoords, uvData); //this is always the same
 
     numberOfSquares++;
 }

@@ -68,6 +68,7 @@
 attribute vec3 vPosition;
 attribute vec3 vTranslation;
 attribute vec3 vNormal;
+attribute vec2 uv;
 
 uniform float vRotationAngleX;
 uniform float vRotationAngleY;
@@ -79,6 +80,7 @@ uniform mat4 projectionMatrix;
 uniform float scaleFactor;
 
 varying vec3 normal;
+varying vec2 vUV;
 
 void main(){
 
@@ -117,6 +119,7 @@ void main(){
   vec4 cameraVert = projectionMatrix *  modelViewMatrix * finalVertex;
   gl_Position = cameraVert;
   normal = vNormal;
+  vUV = uv;
 
 }
 
@@ -125,13 +128,14 @@ void main(){
 precision mediump float;
 
 varying vec3 normal;
+varying vec2 vUV;
+uniform sampler2D textureID;
 
 uniform vec3 colour;
 
 void main(){
 
-    vec3 adjustedNormal = normalize(normal) * 0.5 + 0.5;
-    gl_FragColor = vec4(adjustedNormal, 1.0);
+    gl_FragColor = texture2D(textureID, vUV);
 }
 
 </script>
