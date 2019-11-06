@@ -48,7 +48,7 @@ var fieldOfView = 50;
 
 var projectionMatrix = perspective(fieldOfView, aspect, zNear, zFar);
 
-var brick;
+var tex;
 
 const uvData = [
     0,0, 1,0, 0,1, 1,0, 0,1, 1,1,
@@ -96,10 +96,10 @@ window.onload = function init() {
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     this.gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(uvCoords)), gl.STATIC_DRAW);
 
-    brick = loadTexture("https://raw.githubusercontent.com/invent-box/Learn-WebGL/master/10-Textures/public/textures/default_brick.png");
+    tex = loadTexture("https://raw.githubusercontent.com/invent-box/Learn-WebGL/master/10-Textures/public/textures/default_lava.png");
 
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this.brick);
+    gl.bindTexture(gl.TEXTURE_2D, this.tex);
 
     gl.uniform1i(gl.getUniformLocation(program, "textureID"), 0);
 
