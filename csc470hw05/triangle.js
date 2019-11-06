@@ -51,12 +51,12 @@ var projectionMatrix = perspective(fieldOfView, aspect, zNear, zFar);
 var brick;
 
 const uvData = [
-    1,1,1,0,0,1,0,1,1,0,0,0,
-    1,1,1,0,0,1,0,1,1,0,0,0,
-    1,1,1,0,0,1,0,1,1,0,0,0,
-    1,1,1,0,0,1,0,1,1,0,0,0,
-    1,1,1,0,0,1,0,1,1,0,0,0,
-    1,1,1,0,0,1,0,1,1,0,0,0,
+    0,0, 1,0, 0,1, 1,0, 0,1, 1,1,
+    0,0, 1,0, 0,1, 1,0, 0,1, 1,1,
+    0,0, 1,0, 0,1, 1,0, 0,1, 1,1,
+    0,0, 1,0, 0,1, 1,0, 0,1, 1,1,
+    0,0, 1,0, 0,1, 1,0, 0,1, 1,1,
+    0,0, 1,0, 0,1, 1,0, 0,1, 1,1,
 ]
 
 
@@ -194,7 +194,7 @@ function loadTexture(url) {
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
     gl.generateMipmap(gl.TEXTURE_2D);
-
+    render();
    }; 
     
    image.crossOrigin = "";
@@ -403,6 +403,10 @@ function updateSteps() {
     normals = [];
     uvCoords = [];
     processSteps();
+    console.log("Vertices: " + flatten(vertices).length);
+    console.log("Translations: " + flatten(translations).length);
+    console.log("Normals: " + flatten(normals).length);
+    console.log("UV coords: " + flatten(uvCoords).length)
     render();
 }
 
@@ -592,7 +596,9 @@ function addSquare(xVal, yVal, width) {
     Array.prototype.push.apply(vertices, newSquare);
     Array.prototype.push.apply(translations, translation);
     Array.prototype.push.apply(normals, normal);
-    Array.prototype.push.apply(uvCoords, uvData); //this is always the same
+
+    Array.prototype.push.apply(uvCoords, uvData); 
+    
 
     numberOfSquares++;
 }
@@ -608,6 +614,9 @@ function render() {
 
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(normals)), gl.STATIC_DRAW);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(uvCoords)), gl.STATIC_DRAW);
 
     gl.drawArrays(gl.TRIANGLES, 0, vertices.length);
 
