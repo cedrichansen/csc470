@@ -78,6 +78,8 @@ uniform mat4 projectionMatrix;
 
 uniform float scaleFactor;
 
+varying vec3 normal;
+
 void main(){
 
   mat4 translationMat = mat4(1.0, 0.0, 0.0, 0.0,
@@ -114,14 +116,22 @@ void main(){
 
   vec4 cameraVert = projectionMatrix *  modelViewMatrix * finalVertex;
   gl_Position = cameraVert;
+  normal = vNormal;
 
 }
 
 </script>
   <script id="fragment-shader" type="x-shader/x-fragment">
 precision mediump float;
+
+varying vec3 normal;
+
+uniform vec3 colour;
+
 void main(){
-    gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
+
+    vec3 adjustedNormal = normalize(normal) * 0.5 + 0.5;
+    gl_FragColor = vec4(adjustedNormal, 1.0);
 }
 
 </script>

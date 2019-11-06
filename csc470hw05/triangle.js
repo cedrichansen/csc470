@@ -40,7 +40,7 @@ var moveSpeed = 0.01;
 var rotationSpeed = 1;
 
 var aspect = 1;
-var zNear = 0;
+var zNear = 1;
 var zFar = 1000;
 var fieldOfView = 50;
 
@@ -63,7 +63,7 @@ window.onload = function init() {
     program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
 
-    //gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.DEPTH_TEST);
     // Position buffer       
     positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -97,6 +97,9 @@ window.onload = function init() {
 
     gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(modelView));
     gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
+
+
+    gl.uniform1f(gl.getUniformLocation(program, "colour"), vec3(1.0, 0.5, 0.5));
 
 
     var rotateSlider = document.getElementById("rotateSlider");
@@ -416,17 +419,17 @@ function addSquare(xVal, yVal, width) {
         vec3(xVal + width, yVal - width, -cubeDepth),
 
         //right side
-        vec3(xVal, yVal, -cubeDepth),
-        vec3(xVal, yVal, cubeDepth),
+        vec3(xVal, yVal, -cubeDepth), 
         vec3(xVal, yVal - width, cubeDepth),
+        vec3(xVal, yVal, cubeDepth),
         vec3(xVal, yVal - width, cubeDepth),
         vec3(xVal, yVal - width, - cubeDepth),
         vec3(xVal, yVal, -cubeDepth),
 
         //left side
-        vec3(xVal + width, yVal, -cubeDepth),
-        vec3(xVal + width, yVal, cubeDepth),
+        vec3(xVal + width, yVal, -cubeDepth), 
         vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal + width, yVal, cubeDepth),
         vec3(xVal + width, yVal - width, cubeDepth),
         vec3(xVal + width, yVal - width, - cubeDepth),
         vec3(xVal + width, yVal, -cubeDepth),
@@ -441,11 +444,11 @@ function addSquare(xVal, yVal, width) {
 
         //bottom
         vec3(xVal, yVal - width, cubeDepth),
-        vec3(xVal, yVal- width, -cubeDepth),
-        vec3(xVal + width, yVal- width, cubeDepth),
-        vec3(xVal, yVal- width, -cubeDepth),
-        vec3(xVal + width, yVal- width, -cubeDepth),
-        vec3(xVal + width, yVal- width, cubeDepth),
+        vec3(xVal, yVal - width, -cubeDepth),
+        vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal, yVal - width, -cubeDepth),
+        vec3(xVal + width, yVal - width, -cubeDepth),
+        vec3(xVal + width, yVal - width, cubeDepth),
 
     ];
 
@@ -494,13 +497,6 @@ function addSquare(xVal, yVal, width) {
     ]
 
     var normal = [
-        vec3(0,0, -1),
-        vec3(0,0, -1),
-        vec3(0,0, -1),
-        vec3(0,0, -1),
-        vec3(0,0, -1),
-        vec3(0,0, -1),
-        vec3(0,0, -1),
 
         vec3(0,0, 1),
         vec3(0,0, 1),
@@ -508,7 +504,14 @@ function addSquare(xVal, yVal, width) {
         vec3(0,0, 1),
         vec3(0,0, 1),
         vec3(0,0, 1),
-        vec3(0,0, 1),
+
+        vec3(0,0, -1),
+        vec3(0,0, -1),
+        vec3(0,0, -1),
+        vec3(0,0, -1),
+        vec3(0,0, -1),
+        vec3(0,0, -1),
+
 
         vec3(1,0,0),
         vec3(1,0,0),
