@@ -113,7 +113,7 @@ window.onload = function init() {
 
     gl.uniform1i(gl.getUniformLocation(program, "textureID"), 0);
 
-    norm = loadTexture("cone.jpg");
+    norm = loadTexture("normal.jpg");
 
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, this.norm);
@@ -623,12 +623,12 @@ function addSquare(xVal, yVal, width) {
         vec3(1,0,0),
         vec3(1,0,0),
 
-        vec3(-1,0,0),
-        vec3(-1,0,0),
-        vec3(-1,0,0),
-        vec3(-1,0,0),
-        vec3(-1,0,0),
-        vec3(-1,0,0),
+        vec3(1,0,0),
+        vec3(1,0,0),
+        vec3(1,0,0),
+        vec3(1,0,0),
+        vec3(1,0,0),
+        vec3(1,0,0),
 
         vec3(0,1,0),
         vec3(0,1,0),
@@ -637,12 +637,12 @@ function addSquare(xVal, yVal, width) {
         vec3(0,1,0),
         vec3(0,1,0),
 
-        vec3(0,-1,0),
-        vec3(0,-1,0),
-        vec3(0,-1,0),
-        vec3(0,-1,0),
-        vec3(0,-1,0),
-        vec3(0,-1,0),
+        vec3(0,1,0),
+        vec3(0,1,0),
+        vec3(0,1,0),
+        vec3(0,1,0),
+        vec3(0,1,0),
+        vec3(0,1,0),
 
         vec3(0,0, 1),
         vec3(0,0, 1),
@@ -651,12 +651,12 @@ function addSquare(xVal, yVal, width) {
         vec3(0,0, 1),
         vec3(0,0, 1),
 
-        vec3(0,0, -1),
-        vec3(0,0, -1),
-        vec3(0,0, -1),
-        vec3(0,0, -1),
-        vec3(0,0, -1),
-        vec3(0,0, -1),
+        vec3(0,0, 1),
+        vec3(0,0, 1),
+        vec3(0,0, 1),
+        vec3(0,0, 1),
+        vec3(0,0, 1),
+        vec3(0,0, 1),
     ];
 
     Array.prototype.push.apply(vertices, newSquare);
