@@ -5,6 +5,7 @@ var vertices = [];
 var translations = [];
 var normals = [];
 var uvCoords = [];
+var rightVectors = [];
 
 var numberOfSteps = 1;
 var program;
@@ -26,6 +27,7 @@ var positionBuffer;
 var translationBuffer;
 var normalBuffer;
 var uvBuffer;
+var rightBuffer;
 
 var scaleFactor = 0;
 
@@ -49,6 +51,7 @@ var fieldOfView = 50;
 var projectionMatrix = perspective(fieldOfView, aspect, zNear, zFar);
 
 var tex;
+var norm;
 
 const uvData = [
     1,0, 0,0, 0,1, 1,0, 1,1, 0,1, 
@@ -57,7 +60,7 @@ const uvData = [
     1,0, 0,0, 0,1, 1,0, 1,1, 0,1,  
     1,0, 0,0, 0,1, 1,0, 1,1, 0,1,  
     1,0, 0,0, 0,1, 1,0, 1,1, 0,1,  
-]
+];
 
 
 window.onload = function init() {
@@ -88,27 +91,39 @@ window.onload = function init() {
     gl.bindBuffer(gl.ARRAY_BUFFER, translationBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(translations)), gl.STATIC_DRAW);
 
+    //normal values
     normalBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
     this.gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(this.normals)), gl.STATIC_DRAW);
 
+    //uv coordinates
     uvBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
-    this.gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(uvCoords)), gl.STATIC_DRAW);
+    this.gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(uvCoords)), gl.STATIC_DRAW);
 
-    var im = document.getElementById("texture");
-    tex = loadTexture(im);
+    //right buffer;
+    rightBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, rightBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(rightVectors)), gl.STATIC_DRAW);
+
+    tex = loadTexture("box.jpg");
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this.tex);
 
     gl.uniform1i(gl.getUniformLocation(program, "textureID"), 0);
 
+    norm = loadTexture("normal.jpg");
+
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, this.norm);
+
+    gl.uniform1i(gl.getUniformLocation(program, "normalID"), 1);
+
     var vPosition = gl.getAttribLocation(program, "vPosition");
     gl.enableVertexAttribArray(vPosition);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
     gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
-
 
     var vTranslation = gl.getAttribLocation(program, "vTranslation");
     gl.enableVertexAttribArray(vTranslation);
@@ -124,6 +139,12 @@ window.onload = function init() {
     gl.enableVertexAttribArray(uvLocation);
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0,0);
+
+    var rightPos = gl.getAttribLocation(program, "vRight");
+    gl.enableVertexAttribArray(rightPos);
+    gl.bindBuffer(gl.ARRAY_BUFFER, rightBuffer);
+    gl.vertexAttribPointer(rightPos, 3, gl.FLOAT, false, 0, 0);
+
 
     gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(modelView));
     gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
@@ -403,11 +424,13 @@ function updateSteps() {
     translations = [];
     normals = [];
     uvCoords = [];
+    rightVectors = [];
     processSteps();
+    console.log("rights : " + flatten(rightVectors).length);
     console.log("Vertices: " + flatten(vertices).length);
     console.log("Translations: " + flatten(translations).length);
     console.log("Normals: " + flatten(normals).length);
-    console.log("UV coords: " + flatten(uvCoords).length)
+    console.log("UV coords: " + flatten(uvCoords).length);
     render();
 }
 
@@ -546,10 +569,9 @@ function addSquare(xVal, yVal, width) {
         vec3(translationValueX, translationValueY, 0),
         vec3(translationValueX, translationValueY, 0),
 
-    ]
+    ];
 
     var normal = [
-
         vec3(0,0, 1),
         vec3(0,0, 1),
         vec3(0,0, 1),
@@ -578,8 +600,6 @@ function addSquare(xVal, yVal, width) {
         vec3(1,0,0),
         vec3(1,0,0),
 
-
-
         vec3(0,1,0),
         vec3(0,1,0),
         vec3(0,1,0),
@@ -593,14 +613,57 @@ function addSquare(xVal, yVal, width) {
         vec3(0,-1,0),
         vec3(0,-1,0),
         vec3(0,-1,0),
-    ]
+    ];
+
+    var rightStuff = [
+        vec3(1,0,0),
+        vec3(1,0,0),
+        vec3(1,0,0),
+        vec3(1,0,0),
+        vec3(1,0,0),
+        vec3(1,0,0),
+
+        vec3(-1,0,0),
+        vec3(-1,0,0),
+        vec3(-1,0,0),
+        vec3(-1,0,0),
+        vec3(-1,0,0),
+        vec3(-1,0,0),
+
+        vec3(0,1,0),
+        vec3(0,1,0),
+        vec3(0,1,0),
+        vec3(0,1,0),
+        vec3(0,1,0),
+        vec3(0,1,0),
+
+        vec3(0,-1,0),
+        vec3(0,-1,0),
+        vec3(0,-1,0),
+        vec3(0,-1,0),
+        vec3(0,-1,0),
+        vec3(0,-1,0),
+
+        vec3(0,0, 1),
+        vec3(0,0, 1),
+        vec3(0,0, 1),
+        vec3(0,0, 1),
+        vec3(0,0, 1),
+        vec3(0,0, 1),
+
+        vec3(0,0, -1),
+        vec3(0,0, -1),
+        vec3(0,0, -1),
+        vec3(0,0, -1),
+        vec3(0,0, -1),
+        vec3(0,0, -1),
+    ];
 
     Array.prototype.push.apply(vertices, newSquare);
     Array.prototype.push.apply(translations, translation);
     Array.prototype.push.apply(normals, normal);
-
     Array.prototype.push.apply(uvCoords, uvData); 
-    
+    Array.prototype.push.apply(rightVectors, rightStuff);
 
     numberOfSquares++;
 }
@@ -619,6 +682,9 @@ function render() {
 
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(uvCoords)), gl.STATIC_DRAW);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, rightBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(rightVectors)), gl.STATIC_DRAW);
 
     gl.drawArrays(gl.TRIANGLES, 0, vertices.length);
 
