@@ -113,7 +113,7 @@ window.onload = function init() {
 
     gl.uniform1i(gl.getUniformLocation(program, "textureID"), 0);
 
-    norm = loadTexture("normal.jpg");
+    norm = loadTexture("coolNormal.jpg");
 
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, this.norm);
