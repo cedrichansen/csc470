@@ -106,14 +106,14 @@ window.onload = function init() {
     gl.bindBuffer(gl.ARRAY_BUFFER, rightBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(rightVectors)), gl.STATIC_DRAW);
 
-    tex = loadTexture("box.jpg");
+    tex = loadTexture("metal.jpg");
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this.tex);
 
     gl.uniform1i(gl.getUniformLocation(program, "textureID"), 0);
 
-    norm = loadTexture("coolNormal.jpg");
+    norm = loadTexture("rock.jpg");
 
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, this.norm);
