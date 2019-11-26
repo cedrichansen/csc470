@@ -114,15 +114,14 @@ void main(){
 
   vec4 rotatedVertex =  rotationMatrixX * rotationMatrixY * rotationMatrixZ * centeredVector;
 
+  float jumpHeightFormatted = jumpHeight * 0.08;
+
   mat4 returnMatrix = mat4(1.0, 0.0, 0.0, 0.0,
                             0.0, 1.0, 0.0, 0.0,
                             0.0, 0.0, 1.0, 0.0,
-                            vTranslation.x, vTranslation.y, vTranslation.z, 1.0);
+                            vTranslation.x, vTranslation.y + jumpHeightFormatted, vTranslation.z, 1.0);
           
   vec4 finalVertex = returnMatrix * rotatedVertex;
-
-  float jumpHeightFormatted = jumpHeight * 0.01;
-  vec4 jumpVertex = vec4(finalVertex.x, finalVertex.y + jumpHeightFormatted, finalVertex.z, finalVertex.w); 
 
   vec4 cameraVert = projectionMatrix *  modelViewMatrix * finalVertex;
   gl_Position = cameraVert;

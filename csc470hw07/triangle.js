@@ -214,6 +214,7 @@ window.onload = function init() {
     window.addEventListener('keydown', function (e) {
         if (e.keyCode == 32 && e.target == document.body) {
             e.preventDefault();
+            jump();
         }
     });
 
@@ -278,9 +279,7 @@ function handleKeyboard(e) {
     } else if (e.key == "i") {
         rollRight();
         validkeyPress = true;
-    } else if (e.key == "b") {
-        jump();
-    }
+    } 
 
     if (validkeyPress) {
         modelView = lookAt(cameraPosition, lookingAt, up);
