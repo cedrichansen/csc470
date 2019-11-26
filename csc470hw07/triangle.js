@@ -49,7 +49,7 @@ var moveSpeed = 0.01;
 var rotationSpeed = 1;
 
 var aspect = 1;
-var zNear = 1;
+var zNear = 0.5;
 var zFar = 1000;
 var fieldOfView = 50;
 
@@ -211,7 +211,7 @@ window.onload = function init() {
 
     document.addEventListener("keypress", handleKeyboard, false);
 
-    window.addEventListener('keydown', function (e) {
+    window.addEventListener('keypress', function (e) {
         if (e.keyCode == 32 && e.target == document.body) {
             e.preventDefault();
             jump();
