@@ -92,25 +92,27 @@ window.onload = function init() {
 
 
     boxProgram = initShaders(gl, "vertex-shader-box", "fragment-shader-box");
+    program = initShaders(gl, "vertex-shader", "fragment-shader");
+
     gl.useProgram(boxProgram);
-    gl.uniform1i(gl.getUniformLocation(boxProgram, "vColor"), flatten(vec3(0.5, 0.5, 0.5)));
+    //gl.uniform1i(gl.getUniformLocation(boxProgram, "vColor"), flatten(vec3(0.5, 0.5, 0.5)));
 
 
     gl.uniformMatrix4fv(gl.getUniformLocation(boxProgram, "modelViewMatrix"), false, flatten(modelView));
     gl.uniformMatrix4fv(gl.getUniformLocation(boxProgram, "projectionMatrix"), false, flatten(projectionMatrix));
     
     boxPositionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.boxPositionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(boxPosVertices)), gl.STATIC_DRAW)
+    gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(boxPosVertices)), gl.STATIC_DRAW)
 
-    
+    var boxPos = gl.getAttribLocation(boxProgram, "vPosition");
+    gl.enableVertexAttribArray(boxPos);
+    gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
+    gl.vertexAttribPointer(boxPos, 3, gl.FLOAT, false, 0, 0);
 
 
-    //  Load shaders and initialize attribute buffers
-    program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
 
-    // Position buffer       
     positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(vertices)), gl.STATIC_DRAW);
@@ -272,7 +274,6 @@ function jump() {
     var currentHeight = getHeight(currentTime);
 
     var i = 0
-    //figure out the positions in space we will be at when we jump
     while (i < 40) {
         currentTime += tInc;
         currentHeight = getHeight(currentTime);
@@ -443,9 +444,9 @@ function drawCubes() {
 
 function drawBox(){
 
-    var xVal = -0.8;
-    var width = 0.3;
-    var yVal = -0.5;
+    var xVal = 0.0;
+    var width = 1.0;
+    var yVal = 0.0;
     var cubeDepth = 0.1;
 
     var pos = [
@@ -736,9 +737,8 @@ function render() {
 
     //redraw the box
     gl.useProgram(boxProgram);
-    gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(boxPosVertices)), gl.STATIC_DRAW);
 
+    gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
     gl.drawArrays(gl.TRIANGLES, 0, boxPosVertices.length);
 
 
