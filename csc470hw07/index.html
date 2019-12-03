@@ -63,11 +63,73 @@
       border-radius: 50%;
     }
   </style>
+  <script id="vertex-shader-box" type="x-shader/x-vertex">
+
+attribute vec3 vPosition;
+attribute vec3 vNormal;
+attribute vec2 uv;
+attribute vec3 vRight;
+
+varying vec3 normal;
+varying vec2 vUV;
+varying vec3 right;
+varying vec3 colour;
+
+uniform vec3 vColour;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+
+
+void main(){
+
+  gl_Position = projectionMatrix *  modelViewMatrix * vec4(vPosition, 1.0);
+
+vUV = uv;
+  normal = vNormal;
+  right = vRight;
+  colour = vColour;
+
+}
+  
+  </script>
+
+
+  <script id="fragment-shader-box" type="x-shader/x-fragment">
+    precision mediump float;
+
+    const float ambient = 0.3;
+    const vec3 lightDirection = normalize(vec3(-1.0, 0.0, -2.0));
+    
+    varying vec3 normal;
+    varying vec2 vUV;
+    varying vec3 right;
+    varying vec3 colour;
+    
+    uniform sampler2D textureID;
+        
+    void main(){
+
+      vec4 cubeCol = vec4(0.5, 0.1,1,0.5);
+    
+      //float diffuse = max(0.0, dot(normal, lightDirection));
+    
+      //float vBrightness = ambient + diffuse;
+    
+      //vec4 texel = texture2D(textureID, vUV);
+      //texel.xyz *= vBrightness;
+    
+      gl_FragColor = cubeCol;
+    }
+    
+  
+  
+  </script>
+
   <script id="vertex-shader" type="x-shader/x-vertex">
 
 
 attribute vec3 vPosition;
-attribute vec3 vTranslation;
+//attribute vec3 vTranslation;
 attribute vec3 vNormal;
 attribute vec2 uv;
 attribute vec3 vRight;
@@ -89,49 +151,22 @@ uniform mat4 normalMatrix;
 
 void main(){
 
-  mat4 translationMat = mat4(1.0, 0.0, 0.0, 0.0,
-                              0.0, 1.0, 0.0, 0.0,
-                              0.0, 0.0, 1.0, 0.0,
-                              -vTranslation.x, -vTranslation.y, -vTranslation.z, 1.0);
-  
-  vec4 centeredVector =  translationMat * vec4(vPosition, 1.0);                  
-
-  mat4 rotationMatrixX = mat4( 1.0, 0.0, 0.0, 0.0,
-                              0.0, cos(vRotationAngleX), sin(vRotationAngleX), 0.0,
-                              0.0, -sin(vRotationAngleX), cos(vRotationAngleX), 0.0,
-                              0.0, 0.0, 0.0, 1.0);
-
-  mat4 rotationMatrixY =  mat4( cos(vRotationAngleY), 0.0, -sin(vRotationAngleY), 0.0,
-                                0.0, 1.0, 0.0, 0.0,
-                                sin(vRotationAngleY), 0.0, cos(vRotationAngleY), 0.0,
-                                0.0, 0.0, 0.0, 1.0); 
-
-  mat4 rotationMatrixZ = mat4(cos(vRotationAngleZ), sin(vRotationAngleZ), 0.0, 0.0,
-                              -sin(vRotationAngleZ), cos(vRotationAngleZ), 0.0, 0.0,
-                              0.0, 0.0, 1.0, 0.0,
-                              0.0, 0.0, 0.0, 1.0);    
-
-
-  vec4 rotatedVertex =  rotationMatrixX * rotationMatrixY * rotationMatrixZ * centeredVector;
-
   float jumpHeightFormatted = jumpHeight * 0.08;
 
   mat4 returnMatrix = mat4(1.0, 0.0, 0.0, 0.0,
                             0.0, 1.0, 0.0, 0.0,
                             0.0, 0.0, 1.0, 0.0,
-                            vTranslation.x, vTranslation.y + jumpHeightFormatted, vTranslation.z, 1.0);
+                            0.0, jumpHeightFormatted, 0.0, 1.0);
           
-  vec4 finalVertex = returnMatrix * rotatedVertex;
+  vec4 finalVertex = returnMatrix * vec4(vPosition, 1.0);
 
   vec4 cameraVert = projectionMatrix *  modelViewMatrix * finalVertex;
   gl_Position = cameraVert;
   vUV = uv;
 
-  vec3 rotatedNormal = vec3((rotationMatrixX * rotationMatrixY * rotationMatrixZ * vec4(vNormal, 1.0)));
-  normal = rotatedNormal;
+  normal = vNormal;
 
-  vec3 rotatedRight = vec3((rotationMatrixX * rotationMatrixY * rotationMatrixZ * vec4(vRight, 1.0)));
-  right = rotatedRight;
+  right = vRight;
 }
 
 </script>
@@ -146,21 +181,10 @@ varying vec2 vUV;
 varying vec3 right;
 
 uniform sampler2D textureID;
-//uniform sampler2D normalID;
 
 uniform vec3 colour;
 
 void main(){
-
-  //vec3 B = normalize(cross(normal, normal));
-  //mat3 TBN = mat3(right, B, normal);
-
-  //vec3 newNormal = normalize(texture2D(normalID, vUV).rgb);
-  //newNormal = normalize(newNormal * 2.0  - 1.0);
-  //newNormal = normalize(TBN * newNormal);
-
-  //with texture
-  //float diffuse = max(0.0, dot(newNormal, lightDirection));
 
   float diffuse = max(0.0, dot(normal, lightDirection));
 
@@ -234,50 +258,6 @@ void main(){
 
   </div>
 
- <div id="leftbox">
-    <div>
-        <label><font color="white">Number of steps</font></label>
-        <input type="range" min="1" max="7" value="1" id= "stepsSlider">
-        <font color="white"><output></output></font>
-      </div>
-    <br>
-      
- </div> 
-
-<div id="rightbox">  <div>
-    <label><font color="white">Rotate</font></label>
-    <label class="switch">
-      <input id="rotateSlider" type="checkbox">
-      <span class="slider round"></span>
-    </label>
-  </div>
-
-
-
-<div>
-  <label><font color="white">Rotation X</font></label>
-  <label class="switch">
-    <input id="rotationX" type="checkbox" checked>
-    <span class="slider round"></span>
-  </label>
-</div>
-
-<div>
-  <label><font color="white">Rotation Y</font></label>
-  <label class="switch">
-    <input id="rotationY" type="checkbox" checked>
-    <span class="slider round"></span>
-  </label>
-</div>
-
-<div>
-  <label><font color="white">Rotation Z</font></label>
-  <label class="switch">
-    <input id="rotationZ" type="checkbox" checked>
-    <span class="slider round"></span>
-  </label>
-</div>
-</div>
 
 </body>
 

@@ -7,8 +7,13 @@ var normals = [];
 var uvCoords = [];
 var rightVectors = [];
 
+var boxPosVertices = [];
+
 var numberOfSteps = 1;
+
 var program;
+var boxProgram
+
 var numberOfSquares = 0;
 var initialWidth = 0.66666;
 
@@ -28,6 +33,8 @@ var translationBuffer;
 var normalBuffer;
 var uvBuffer;
 var rightBuffer;
+
+var boxPositionBuffer;
 
 var scaleFactor = 0;
 
@@ -75,17 +82,32 @@ window.onload = function init() {
         alert("WebGL isn't available");
     }
 
-    processSteps();
+    drawCubes();
+    drawBox();
 
     //  Configure WebGL    
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.enable(gl.DEPTH_TEST);
+
+
+    boxProgram = initShaders(gl, "vertex-shader-box", "fragment-shader-box");
+    gl.useProgram(boxProgram);
+    gl.uniform1i(gl.getUniformLocation(boxProgram, "vColor"), flatten(vec3(0.5, 0.5, 0.5)));
+
+
+    gl.uniformMatrix4fv(gl.getUniformLocation(boxProgram, "modelViewMatrix"), false, flatten(modelView));
+    gl.uniformMatrix4fv(gl.getUniformLocation(boxProgram, "projectionMatrix"), false, flatten(projectionMatrix));
+    
+    boxPositionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.boxPositionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(boxPosVertices)), gl.STATIC_DRAW)
+
 
     //  Load shaders and initialize attribute buffers
     program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
 
-    gl.enable(gl.DEPTH_TEST);
     // Position buffer       
     positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -123,17 +145,17 @@ window.onload = function init() {
     // gl.activeTexture(gl.TEXTURE1);
     // gl.bindTexture(gl.TEXTURE_2D, this.norm);
 
-    gl.uniform1i(gl.getUniformLocation(program, "normalID"), 1);
+    //gl.uniform1i(gl.getUniformLocation(program, "normalID"), 1);
 
     var vPosition = gl.getAttribLocation(program, "vPosition");
     gl.enableVertexAttribArray(vPosition);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
     gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
 
-    var vTranslation = gl.getAttribLocation(program, "vTranslation");
-    gl.enableVertexAttribArray(vTranslation);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.translationBuffer);
-    gl.vertexAttribPointer(vTranslation, 3, gl.FLOAT, false, 0, 0);
+    // var vTranslation = gl.getAttribLocation(program, "vTranslation");
+    // gl.enableVertexAttribArray(vTranslation);
+    // gl.bindBuffer(gl.ARRAY_BUFFER, this.translationBuffer);
+    // gl.vertexAttribPointer(vTranslation, 3, gl.FLOAT, false, 0, 0);
 
     var vNormal = gl.getAttribLocation(program, "vNormal");
     gl.enableVertexAttribArray(vNormal);
@@ -158,56 +180,6 @@ window.onload = function init() {
     gl.uniform1f(gl.getUniformLocation(program, "jumpHeight"), 0);
 
     gl.uniform1f(gl.getUniformLocation(program, "colour"), vec3(1.0, 0.5, 0.5));
-
-    var rotateSlider = document.getElementById("rotateSlider");
-    rotateSlider.addEventListener('change', function (event) {
-        rotateButtonPress(rotateSlider.checked);
-    });
-
-    //add event listener for number slider, and display current selection
-    let i = document.getElementById("stepsSlider"),
-        o = document.querySelector('output');
-
-    o.innerHTML = i.value;
-    i.addEventListener('change', function () {
-        o.innerHTML = i.value;
-        numberOfSteps = i.value;
-        updateSteps();
-    }, false);
-
-    var elem = document.getElementById('gl-canvas');
-    elem.addEventListener('click', function (event) {
-        changeRotationDirection();
-    }, false);
-
-    //following 3 event listeners are for toggle switches. 
-    //When pressed, the rotation speed changes accordingly
-    var xToggle = this.document.getElementById("rotationX");
-    xToggle.addEventListener('change', function (event) {
-        if (xToggle.checked) {
-            rotationSpeedX = 0.01 * rotationDirection;
-        } else {
-            rotationSpeedX = 0.00;
-        }
-    }, false)
-
-    var yToggle = this.document.getElementById("rotationY");
-    yToggle.addEventListener('change', function (event) {
-        if (yToggle.checked) {
-            rotationSpeedY = 0.01 * rotationDirection;
-        } else {
-            rotationSpeedY = 0.00;
-        }
-    }, false)
-
-    var zToggle = this.document.getElementById("rotationZ");
-    zToggle.addEventListener('change', function (event) {
-        if (zToggle.checked) {
-            rotationSpeedZ = 0.01;
-        } else {
-            rotationSpeedZ = 0.00;
-        }
-    }, false)
 
     document.addEventListener("keypress", handleKeyboard, false);
 
@@ -316,14 +288,14 @@ function jumpAnim() {
     currentHeightIndex++;
 
     gl.uniform1f(gl.getUniformLocation(program, "jumpHeight"), jumpHeight);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.drawArrays(gl.TRIANGLES, 0, vertices.length);
+    render();
 
     if (currentHeightIndex < jumpHeights.length -1 ) {
         window.requestAnimationFrame(jumpAnim);
     } else {
         jumpHeights = [];
         currentHeightIndex = 0;
+        ///render();
     }
 }
 
@@ -332,7 +304,6 @@ function getHeight(t) {
     var newH = (vInit * t) + (0.5 * -9.8 * Math.pow(t, 2));
     return newH;
 }
-
 
 
 function strafeLeft() {
@@ -447,37 +418,6 @@ function rollRight() {
     right = cross(lookingAt, up);
 }
 
-//called when canvas is clicked
-function changeRotationDirection() {
-    rotationDirection = -rotationDirection;
-}
-
-//called when rotate button on web page is pressed
-function rotateButtonPress(rotateOn) {
-    if (!rotateOn) {
-        rotating = false;
-        cancelAnimationFrame(stopId);
-    } else {
-        rotating = true;
-        window.requestAnimationFrame(rotateAnimation);
-    }
-}
-
-function rotateAnimation() {
-
-    rotationValueX += rotationSpeedX * rotationDirection;
-    rotationValueY += rotationSpeedY * rotationDirection;
-    rotationValueZ += rotationSpeedZ * rotationDirection;
-
-    gl.uniform1f(gl.getUniformLocation(program, "vRotationAngleX"), rotationValueX);
-    gl.uniform1f(gl.getUniformLocation(program, "vRotationAngleY"), rotationValueY);
-    gl.uniform1f(gl.getUniformLocation(program, "vRotationAngleZ"), rotationValueZ);
-    gl.uniform1f(gl.getUniformLocation(program, "scaleFactor"), scaleFactor);
-
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.drawArrays(gl.TRIANGLES, 0, vertices.length);
-    stopId = window.requestAnimationFrame(rotateAnimation);
-}
 
 function updateSteps() {
     numberOfSquares = 0;
@@ -486,7 +426,7 @@ function updateSteps() {
     normals = [];
     uvCoords = [];
     rightVectors = [];
-    processSteps();
+    drawCubes();
     console.log("rights : " + flatten(rightVectors).length);
     console.log("Vertices: " + flatten(vertices).length);
     console.log("Translations: " + flatten(translations).length);
@@ -495,9 +435,69 @@ function updateSteps() {
     render();
 }
 
-function processSteps() {
+function drawCubes() {
     let squareWidth = initialWidth;
     addSquaresToCanvas(numberOfSteps, -1, 1, squareWidth)
+}
+
+function drawBox(){
+
+    var xVal = -0.8;
+    var width = 0.3;
+    var yVal = -0.5;
+    var cubeDepth = 0.1;
+
+    var pos = [
+        vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal + width, yVal, cubeDepth),
+        vec3(xVal, yVal, cubeDepth),
+        vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal, yVal - width, cubeDepth),
+        vec3(xVal, yVal, cubeDepth),
+
+        //back side
+        vec3(xVal, yVal, -cubeDepth),
+        vec3(xVal + width, yVal, -cubeDepth),
+        vec3(xVal + width, yVal - width, -cubeDepth),
+        vec3(xVal, yVal, -cubeDepth),
+        vec3(xVal, yVal - width, -cubeDepth),
+        vec3(xVal + width, yVal - width, -cubeDepth),
+
+        //right side
+        vec3(xVal, yVal - width, cubeDepth),
+        vec3(xVal, yVal, cubeDepth),
+        vec3(xVal, yVal, -cubeDepth),
+        vec3(xVal, yVal - width, cubeDepth),
+        vec3(xVal, yVal - width, - cubeDepth),
+        vec3(xVal, yVal, -cubeDepth),
+
+        //left side
+        vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal + width, yVal, cubeDepth),
+        vec3(xVal + width, yVal, -cubeDepth),
+        vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal + width, yVal - width, - cubeDepth),
+        vec3(xVal + width, yVal, -cubeDepth),
+
+        //top
+        vec3(xVal, yVal, -cubeDepth),
+        vec3(xVal, yVal, cubeDepth),
+        vec3(xVal + width, yVal, cubeDepth),
+        vec3(xVal, yVal, -cubeDepth),
+        vec3(xVal + width, yVal, -cubeDepth),
+        vec3(xVal + width, yVal, cubeDepth),
+
+        //bottom
+        vec3(xVal, yVal - width, -cubeDepth),
+        vec3(xVal, yVal - width, cubeDepth),
+        vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal, yVal - width, -cubeDepth),
+        vec3(xVal + width, yVal - width, -cubeDepth),
+        vec3(xVal + width, yVal - width, cubeDepth),
+    ];
+
+    Array.prototype.push.apply(boxPosVertices, pos);
+
 }
 
 function addSquaresToCanvas(steps, topLeftX, topLeftY, width) {
@@ -730,7 +730,19 @@ function addSquare(xVal, yVal, width) {
 }
 
 function render() {
+
     gl.clear(gl.COLOR_BUFFER_BIT);
+
+    //redraw the box
+    gl.useProgram(boxProgram);
+    gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(boxPosVertices)), gl.STATIC_DRAW);
+
+    gl.drawArrays(gl.TRIANGLES, 0, boxPosVertices.length);
+
+
+    //redraw the guy
+    gl.useProgram(program);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(vertices)), gl.STATIC_DRAW);
@@ -748,5 +760,8 @@ function render() {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(rightVectors)), gl.STATIC_DRAW);
 
     gl.drawArrays(gl.TRIANGLES, 0, vertices.length);
+
+
+
 
 }
