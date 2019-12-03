@@ -103,6 +103,8 @@ window.onload = function init() {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.boxPositionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(boxPosVertices)), gl.STATIC_DRAW)
 
+    
+
 
     //  Load shaders and initialize attribute buffers
     program = initShaders(gl, "vertex-shader", "fragment-shader");
@@ -213,8 +215,6 @@ function loadTexture(url) {
 function handleKeyboard(e) {
     var validkeyPress = false;
 
-    console.log("Pressed: " + e.which);
-
     if (e.key == "a") {
         strafeLeft();
         validkeyPress = true;
@@ -271,11 +271,13 @@ function jump() {
     var currentTime = 0.05;
     var currentHeight = getHeight(currentTime);
 
+    var i = 0
     //figure out the positions in space we will be at when we jump
-    while (startingHeight < currentHeight) {
+    while (i < 40) {
         currentTime += tInc;
         currentHeight = getHeight(currentTime);
         jumpHeights.push(currentHeight);
+        i++
     }
 
     window.requestAnimationFrame(jumpAnim);
@@ -284,7 +286,6 @@ function jump() {
 
 function jumpAnim() {
     var jumpHeight = jumpHeights[currentHeightIndex];
-    console.log(jumpHeight);
     currentHeightIndex++;
 
     gl.uniform1f(gl.getUniformLocation(program, "jumpHeight"), jumpHeight);
