@@ -78,11 +78,13 @@ window.onload = function init() {
     gl.uniformMatrix4fv(gl.getUniformLocation(boxProgram, "projectionMatrix"), false, flatten(projectionMatrix));
 
     boxPositionBuffer = gl.createBuffer();
-    var boxPos = gl.getAttribLocation(boxProgram, "chracterPosition");
-    gl.enableVertexAttribArray(boxPos);
-    gl.vertexAttribPointer(boxPos, 3, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(boxPosVertices)), gl.STATIC_DRAW)
+
+    var boxPos = gl.getAttribLocation(boxProgram, "chracterPosition");
+    gl.enableVertexAttribArray(boxPos);
+    gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
+    gl.vertexAttribPointer(boxPos, 3, gl.FLOAT, false, 0, 0);
 
 
     gl.useProgram(program);
@@ -93,11 +95,11 @@ window.onload = function init() {
 
     normalBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(normals)), gl.STATIC_DRAW);
+    this.gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(normals)), gl.STATIC_DRAW);
 
     uvBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(uvCoords)), gl.STATIC_DRAW);
+    this.gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(uvCoords)), gl.STATIC_DRAW);
 
     //right buffer;
     rightBuffer = gl.createBuffer();
@@ -205,8 +207,7 @@ function handleKeyboard(e) {
     } else if (e.key == "i") {
         rollRight();
         validkeyPress = true;
-    } 
-    else if (e.key == "t") {
+    } else if (e.key == "t") {
         moveCharacterUp();
         validkeyPress = true;
     } else if (e.key == "g") {
@@ -229,37 +230,29 @@ function handleKeyboard(e) {
 }
 
 function moveCharacterUp() {
-    for (let i = 0; i < characterVertices.length; i++) {
-        characterVertices[i][1] = characterVertices[i][1] + moveSpeed;
-      }
+
 }
 
 function moveCharacterDown() {
-    for (let i = 0; i < characterVertices.length; i++) {
-        characterVertices[i][1] = characterVertices[i][1] - moveSpeed;
-      }
+
 }
 function moveCharacterLeft() {
-    for (let i = 0; i < characterVertices.length; i++) {
-        characterVertices[i][0] = characterVertices[i][0] + moveSpeed;
-      }
+
 }
 function moveCharacterRight() {
-    for (let i = 0; i < characterVertices.length; i++) {
-        characterVertices[i][0] = characterVertices[i][0] - moveSpeed;
-      }
+
 }
 
 
 function jump() {
 
+    console.log("jumping");
 
     var tInc = 0.05;
     var currentTime = 0.05;
     var currentHeight = getHeight(currentTime);
 
     if (!jumping) {
-        console.log("jumping");
         var i = 0
         while (i < 40) {
             currentTime += tInc;
@@ -411,71 +404,74 @@ function rollRight() {
     right = cross(lookingAt, up);
 }
 
+
+
 function drawBox() {
     var xVal = -0.3;
     var width = 0.5;
     var yVal = -0.5;
     var cubeDepth = 0.1;
 
-    var distance = -10;
-
     var pos = [
-        vec3(xVal + width, yVal - width, distance +  cubeDepth),
-        vec3(xVal + width, yVal, distance + cubeDepth),
-        vec3(xVal, yVal, distance + cubeDepth),
-        vec3(xVal + width, yVal - width,distance +  cubeDepth),
-        vec3(xVal, yVal - width,distance +  cubeDepth),
-        vec3(xVal, yVal,distance +  cubeDepth),
+        vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal + width, yVal, cubeDepth),
+        vec3(xVal, yVal, cubeDepth),
+        vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal, yVal - width, cubeDepth),
+        vec3(xVal, yVal, cubeDepth),
 
         //back side
-        vec3(xVal, yVal, distance - cubeDepth),
-        vec3(xVal + width, yVal, distance + 0 -cubeDepth),
-        vec3(xVal + width, yVal - width, distance + 0 -cubeDepth),
-        vec3(xVal, yVal,distance + 0  -cubeDepth),
-        vec3(xVal, yVal - width,distance + 0  -cubeDepth),
-        vec3(xVal + width, yVal - width,distance + 0  -cubeDepth),
+        vec3(xVal, yVal, -cubeDepth),
+        vec3(xVal + width, yVal, -cubeDepth),
+        vec3(xVal + width, yVal - width, -cubeDepth),
+        vec3(xVal, yVal, -cubeDepth),
+        vec3(xVal, yVal - width, -cubeDepth),
+        vec3(xVal + width, yVal - width, -cubeDepth),
 
         //right side
-        vec3(xVal, yVal - width, distance + cubeDepth),
-        vec3(xVal, yVal, distance + cubeDepth),
-        vec3(xVal, yVal, distance + 0 -cubeDepth),
-        vec3(xVal, yVal - width, distance + cubeDepth),
-        vec3(xVal, yVal - width, distance + 0 - cubeDepth),
-        vec3(xVal, yVal, distance + 0 -cubeDepth),
+        vec3(xVal, yVal - width, cubeDepth),
+        vec3(xVal, yVal, cubeDepth),
+        vec3(xVal, yVal, -cubeDepth),
+        vec3(xVal, yVal - width, cubeDepth),
+        vec3(xVal, yVal - width, - cubeDepth),
+        vec3(xVal, yVal, -cubeDepth),
 
         //left side
-        vec3(xVal + width, yVal - width,distance +  cubeDepth),
-        vec3(xVal + width, yVal, distance + cubeDepth),
-        vec3(xVal + width, yVal, distance + 0 -cubeDepth),
-        vec3(xVal + width, yVal - width, distance + cubeDepth),
-        vec3(xVal + width, yVal - width, distance + 0 - cubeDepth),
-        vec3(xVal + width, yVal, distance + 0 -cubeDepth),
+        vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal + width, yVal, cubeDepth),
+        vec3(xVal + width, yVal, -cubeDepth),
+        vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal + width, yVal - width, - cubeDepth),
+        vec3(xVal + width, yVal, -cubeDepth),
 
         //top
-        vec3(xVal, yVal, distance + 0 -cubeDepth),
-        vec3(xVal, yVal, distance + cubeDepth),
-        vec3(xVal + width, yVal, distance + cubeDepth),
-        vec3(xVal, yVal, distance + 0 -cubeDepth),
-        vec3(xVal + width, yVal, distance + 0 -cubeDepth),
-        vec3(xVal + width, yVal, distance + 0 +cubeDepth),
+        vec3(xVal, yVal, -cubeDepth),
+        vec3(xVal, yVal, cubeDepth),
+        vec3(xVal + width, yVal, cubeDepth),
+        vec3(xVal, yVal, -cubeDepth),
+        vec3(xVal + width, yVal, -cubeDepth),
+        vec3(xVal + width, yVal, cubeDepth),
 
         //bottom
-        vec3(xVal, yVal - width, distance + 0 -cubeDepth),
-        vec3(xVal, yVal - width, distance + cubeDepth),
-        vec3(xVal + width, yVal - width, distance + cubeDepth),
-        vec3(xVal, yVal - width, distance + 0 -cubeDepth),
-        vec3(xVal + width, yVal - width, distance + 0 -cubeDepth),
-        vec3(xVal + width, yVal - width, distance + cubeDepth),
+        vec3(xVal, yVal - width, -cubeDepth),
+        vec3(xVal, yVal - width, cubeDepth),
+        vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal, yVal - width, -cubeDepth),
+        vec3(xVal + width, yVal - width, -cubeDepth),
+        vec3(xVal + width, yVal - width, cubeDepth),
     ];
 
     Array.prototype.push.apply(boxPosVertices, pos);
 }
-
+//xVal and yVal represent the corner of the capet, so just add the width to generate the square
 function drawCharacter() {
 
     var xVal = 0.1;
     var yVal = 0.4;
     var width = 0.5;
+    //pass these 2 into a seperate buffer
+    var translationValueX = xVal + width / 2;
+    var translationValueY = yVal - width / 2;
 
     var cubeDepth = width / 2;
 
@@ -632,7 +628,9 @@ function render() {
     gl.useProgram(boxProgram);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(flatten(boxPosVertices)), gl.STATIC_DRAW);
     gl.drawArrays(gl.TRIANGLES, 0, boxPosVertices.length);
+
 
     //redraw the guy
     gl.useProgram(program);
@@ -650,5 +648,10 @@ function render() {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(rightVectors)), gl.STATIC_DRAW);
 
     gl.drawArrays(gl.TRIANGLES, 0, characterVertices.length);
+
+
+
+
+
 
 }

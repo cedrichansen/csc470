@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<!-- saved from url=(0022)http://127.0.0.1:8080/ -->
+<html><link type="text/css" id="dark-mode" rel="stylesheet" href="http://127.0.0.1:8080/"><style type="text/css" id="dark-mode-custom-style"></style><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <style>
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    input:checked+.slider {
+      background-color: rgb(243, 33, 33);
+    }
+
+    input:focus+.slider {
+      box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked+.slider:before {
+      -webkit-transform: translateX(26px);
+      -ms-transform: translateX(26px);
+      transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+      border-radius: 34px;
+    }
+
+    .slider.round:before {
+      border-radius: 50%;
+    }
+  </style>
+  <script id="vertex-shader-box" type="x-shader/x-vertex">
+
+attribute vec3 chracterPosition;
+
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+
+
+void main(){
+
+  gl_Position = projectionMatrix *  modelViewMatrix * vec4(chracterPosition, 1.0);
+
+}
+  
+  </script>
+
+
+  <script id="fragment-shader-box" type="x-shader/x-fragment">
+    precision mediump float;
+
+    const float ambient = 0.3;
+    const vec3 lightDirection = normalize(vec3(-1.0, 0.0, -2.0));
+    
+    uniform sampler2D textureID;
+        
+    void main(){
+
+      vec4 cubeCol = vec4(1.0, 0.0,0.5, 1.0);
+    
+      //float diffuse = max(0.0, dot(normal, lightDirection));
+    
+      //float vBrightness = ambient + diffuse;
+    
+      //vec4 texel = texture2D(textureID, vUV);
+      //texel.xyz *= vBrightness;
+    
+      gl_FragColor = cubeCol;
+    }
+    
+  
+  
+  </script>
+
+  <script id="vertex-shader" type="x-shader/x-vertex">
+
+
+attribute vec3 vPosition;
+attribute vec3 vNormal;
+attribute vec2 uv;
+attribute vec3 vRight;
+
+varying vec3 normal;
+varying vec2 vUV;
+varying vec3 right;
+
+uniform float vRotationAngleX;
+uniform float vRotationAngleY;
+uniform float vRotationAngleZ;
+
+uniform float jumpHeight;
+
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+uniform mat4 normalMatrix;
+
+
+void main(){
+
+  float jumpHeightFormatted = jumpHeight * 0.08;
+
+  mat4 jumpMatrix = mat4(1.0, 0.0, 0.0, 0.0,
+                            0.0, 1.0, 0.0, 0.0,
+                            0.0, 0.0, 1.0, 0.0,
+                            0.0, jumpHeightFormatted, 0.0, 1.0);
+          
+  vec4 finalVertex = jumpMatrix * vec4(vPosition, 1.0);
+
+  vec4 cameraVert = projectionMatrix *  modelViewMatrix * finalVertex;
+  gl_Position = cameraVert;
+  
+  vUV = uv;
+  normal = vNormal;
+  right = vRight;
+}
+
+</script>
+  <script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+
+const float ambient = 0.3;
+const vec3 lightDirection = normalize(vec3(-1.0, 0.0, -2.0));
+
+varying vec3 normal;
+varying vec2 vUV;
+varying vec3 right;
+
+uniform sampler2D textureID;
+
+void main(){
+
+  float diffuse = max(0.0, dot(normal, lightDirection));
+
+  float vBrightness = ambient + diffuse;
+
+  vec4 texel = texture2D(textureID, vUV);
+  texel.xyz *= vBrightness;
+
+  gl_FragColor = texel;
+}
+
+</script>
+  <script type="text/javascript" src="./127.0.0.1_files/webgl-utils.js"></script>
+  <script type="text/javascript" src="./127.0.0.1_files/initShaders.js"></script>
+  <script type="text/javascript" src="./127.0.0.1_files/MV.js"></script>
+  <script type="text/javascript" src="./127.0.0.1_files/triangle.js"></script>
+
+  <style>
+    html,
+    body {
+      height: 100%;
+      padding: 10px;
+      text-align: center;
+      /* background-color: black; */
+    }
+
+    html {
+      display: table;
+      margin: auto;
+    }
+
+    body {
+      display: table-cell;
+      vertical-align: middle;
+    }
+
+    input {
+      display: block;
+      width: 200px;
+      margin: auto;
+    }
+
+    output {
+      text-align: center;
+      display: block;
+      padding-top: 15px;
+    }
+    #leftbox { 
+                float:left;  
+                width:25%; 
+                height:280px; 
+            } 
+            #middlebox{ 
+                float:left;  
+                width:50%; 
+                height:280px; 
+            } 
+            #rightbox{ 
+                float:right; 
+                width:25%; 
+                height:280px; 
+            } 
+  </style>
+</head>
+
+<body>
+  <div>
+    <canvas id="gl-canvas" width="900" height="900">
+      Oops ... your browser doesn't support the HTML5 canvas element
+    </canvas>
+
+  </div>
+
+
+
+
+</body></html>
