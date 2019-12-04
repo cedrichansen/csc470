@@ -42,6 +42,8 @@ var projectionMatrix = perspective(fieldOfView, aspect, zNear, zFar);
 var tex;
 var norm;
 
+var jumping = false;
+
 const uvData = [
     1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1,
     1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1,
@@ -224,19 +226,24 @@ function jump() {
     var currentTime = 0.05;
     var currentHeight = getHeight(currentTime);
 
-    var i = 0
-    while (i < 40) {
-        currentTime += tInc;
-        currentHeight = getHeight(currentTime);
-        jumpHeights.push(currentHeight);
-        i++
+    if (!jumping) {
+        var i = 0
+        while (i < 40) {
+            currentTime += tInc;
+            currentHeight = getHeight(currentTime);
+            jumpHeights.push(currentHeight);
+            i++
+        }
+    
+        window.requestAnimationFrame(jumpAnim);
     }
-
-    window.requestAnimationFrame(jumpAnim);
+    
 }
 
 
 function jumpAnim() {
+    jumping = true;
+
     var jumpHeight = jumpHeights[currentHeightIndex];
     currentHeightIndex++;
 
@@ -248,7 +255,7 @@ function jumpAnim() {
     } else {
         jumpHeights = [];
         currentHeightIndex = 0;
-        ///render();
+        jumping = false;
     }
 }
 
@@ -591,7 +598,7 @@ function render() {
 
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    //redraw the box
+    // //redraw the box
     gl.useProgram(boxProgram);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
