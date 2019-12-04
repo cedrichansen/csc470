@@ -331,9 +331,11 @@ function jump() {
         var i = 0
         while (i < 40) {
             currentTime += tInc;
+            currentHeight = getHeight(currentTime);
+            jumpHeights.push(currentHeight);
+            
             if (boxBottom > characterTop && characterLeft > boxLeft && characterRight < boxRight) {
-                currentHeight = getHeight(currentTime);
-                jumpHeights.push(currentHeight);
+
             } else {
                 if (!scoredPoint) {
                     console.log("Hit the box!");
