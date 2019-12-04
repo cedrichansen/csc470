@@ -9,10 +9,10 @@ var normals = [];
 var uvCoords = [];
 var rightVectors = [];
 
-var boxPosVertices = [];
+var boxVertices = [];
 
-var program;
-var boxProgram
+var characterProgram;
+var boxProgram;
 
 var positionBuffer;
 var normalBuffer;
@@ -50,9 +50,9 @@ var boxHit = false;
 var characterTop = 0;
 var characterLeft = 0 ;
 var characterRight= 0;
-var characterWidth = 0.5;
+var characterWidth = 0.3;
 
-var boxRight = 0;
+var boxRight = -1000;
 var boxLeft = 1000;
 var boxBottom = 100;
 var boxWidth = 0.3;
@@ -94,21 +94,24 @@ window.onload = function init() {
     }
 
     document.getElementById("score").innerHTML = "Score: " + score;
+
     drawBox();
     drawCharacter();
 
 
-    for (let i = 0; i<boxPosVertices.length; i++) {
-        if (boxLeft > boxPosVertices[i][0]) {
-            boxLeft = boxPosVertices[i][0];
+    this.console.log("Box: " + this.boxVertices);
+    this.console.log("Character: " + this.characterVertices);
+
+    for (let i = 0; i<boxVertices.length; i++) {
+        if (boxLeft > boxVertices[i][0]) {
+            boxLeft = boxVertices[i][0];
         }
-        if (boxBottom > boxPosVertices[i][1]) {
-            boxBottom = boxPosVertices[i][1];
+        if (boxBottom > boxVertices[i][1]) {
+            boxBottom = boxVertices[i][1];
         }
     }
     boxRight = boxLeft + boxWidth;
 
-    this.console.log("Box b: " + this.boxBottom + " left: " + this.boxLeft + " right: " + this.boxRight);
 
     //  Configure WebGL    
     gl.viewport(0, 0, canvas.width, canvas.height);
@@ -116,9 +119,10 @@ window.onload = function init() {
     initBkgnd();
     gl.enable(gl.DEPTH_TEST);
 
-    boxProgram = initShaders(gl, "vertex-shader-box", "fragment-shader-box");
-    program = initShaders(gl, "vertex-shader", "fragment-shader");
+    boxProgram = initShaders(gl, "boxVertex", "boxFragment");
+    characterProgram = initShaders(gl, "characterVertex", "characterFragment");
 
+    /** Setup the box */
     gl.useProgram(boxProgram);
 
     gl.uniformMatrix4fv(gl.getUniformLocation(boxProgram, "modelViewMatrix"), false, flatten(modelView));
@@ -127,15 +131,16 @@ window.onload = function init() {
     gl.uniform1f(gl.getUniformLocation(boxProgram, "score"), score);
 
     boxPositionBuffer = gl.createBuffer();
-    var boxPos = gl.getAttribLocation(boxProgram, "chracterPosition");
+    var boxPos = gl.getAttribLocation(boxProgram, "boxPosition");
     gl.enableVertexAttribArray(boxPos);
     gl.vertexAttribPointer(boxPos, 3, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(boxPosVertices)), gl.STATIC_DRAW)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(boxVertices)), gl.STATIC_DRAW)
 
 
 
-    gl.useProgram(program);
+    /** Setup the character */
+    gl.useProgram(characterProgram);
 
     positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -158,33 +163,33 @@ window.onload = function init() {
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.uniform1i(gl.getUniformLocation(program, "textureID"), 0);
+    gl.uniform1i(gl.getUniformLocation(characterProgram, "textureID"), 0);
 
-    var vPosition = gl.getAttribLocation(program, "vPosition");
+    var vPosition = gl.getAttribLocation(characterProgram, "vPosition");
     gl.enableVertexAttribArray(vPosition);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
     gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
 
-    var vNormal = gl.getAttribLocation(program, "vNormal");
+    var vNormal = gl.getAttribLocation(characterProgram, "vNormal");
     gl.enableVertexAttribArray(vNormal);
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
     gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
 
-    var uvLocation = gl.getAttribLocation(program, "uv");
+    var uvLocation = gl.getAttribLocation(characterProgram, "uv");
     gl.enableVertexAttribArray(uvLocation);
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
 
-    var rightPos = gl.getAttribLocation(program, "vRight");
+    var rightPos = gl.getAttribLocation(characterProgram, "vRight");
     gl.enableVertexAttribArray(rightPos);
     gl.bindBuffer(gl.ARRAY_BUFFER, rightBuffer);
     gl.vertexAttribPointer(rightPos, 3, gl.FLOAT, false, 0, 0);
 
 
-    gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(modelView));
-    gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
+    gl.uniformMatrix4fv(gl.getUniformLocation(characterProgram, "modelViewMatrix"), false, flatten(modelView));
+    gl.uniformMatrix4fv(gl.getUniformLocation(characterProgram, "projectionMatrix"), false, flatten(projectionMatrix));
 
-    gl.uniform1f(gl.getUniformLocation(program, "jumpHeight"), 0);
+    gl.uniform1f(gl.getUniformLocation(characterProgram, "jumpHeight"), 0);
 
     document.addEventListener("keypress", handleKeyboard, false);
 
@@ -290,11 +295,12 @@ function handleKeyboard(e) {
 
 
 
-        console.log("top" + characterTop + " L: " + characterLeft + " right" + characterRight);
+        console.log("character top" + characterTop + " L: " + characterLeft + " right" + characterRight);
+        console.log("Box b: " + boxBottom + " left: " + boxLeft + " right: " + boxRight);
 
         modelView = lookAt(cameraPosition, lookingAt, up);
-        gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(modelView));
-        gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
+        gl.uniformMatrix4fv(gl.getUniformLocation(characterProgram, "modelViewMatrix"), false, flatten(modelView));
+        gl.uniformMatrix4fv(gl.getUniformLocation(characterProgram, "projectionMatrix"), false, flatten(projectionMatrix));
         render();
     }
 }
@@ -330,6 +336,8 @@ function jump() {
     var currentHeight = getHeight(currentTime);
     var scoredPoint = false;
 
+    var maxHeight;
+
     if (!jumping) {
         console.log("jumping");
         var i = 0
@@ -337,8 +345,10 @@ function jump() {
             currentTime += tInc;
             currentHeight = getHeight(currentTime);
             jumpHeights.push(currentHeight);
+            
 
             if (boxBottom > characterTop && characterLeft > boxLeft && characterRight < boxRight) {
+                //did not hit box
 
             } else {
                 if (!scoredPoint) {
@@ -349,7 +359,8 @@ function jump() {
             }
             i++
         }
-    
+
+        jumpHeights.push(getHeight(0));
         window.requestAnimationFrame(jumpAnim);
     }
     
@@ -362,12 +373,13 @@ function jumpAnim() {
     var jumpHeight = jumpHeights[currentHeightIndex];
     currentHeightIndex++;
 
-    gl.uniform1f(gl.getUniformLocation(program, "jumpHeight"), jumpHeight);
+    gl.uniform1f(gl.getUniformLocation(characterProgram, "jumpHeight"), jumpHeight);
     render();
 
     if (currentHeightIndex < jumpHeights.length - 1) {
         window.requestAnimationFrame(jumpAnim);
     } else {
+        //jump is done
         jumpHeights = [];
         currentHeightIndex = 0;
         jumping = false;
@@ -550,7 +562,7 @@ function drawBox() {
         vec3(xVal + width, yVal - width, distance + cubeDepth),
     ];
 
-    Array.prototype.push.apply(boxPosVertices, pos);
+    Array.prototype.push.apply(boxVertices, pos);
 }
 
 function drawCharacter() {
@@ -708,22 +720,20 @@ function drawCharacter() {
 
 function render() {
 
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    //gl.clear(gl.COLOR_BUFFER_BIT);
 
     // //redraw the box
     gl.useProgram(boxProgram);
-
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(boxVertices)), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
+    //send the current score
     gl.uniform1f(gl.getUniformLocation(boxProgram, "score"), score);
     document.getElementById("score").innerHTML = "Score: " + score;
-
-
-
-    gl.drawArrays(gl.TRIANGLES, 0, boxPosVertices.length);
+    gl.drawArrays(gl.TRIANGLES, 0, boxVertices.length);
 
 
     //redraw the guy
-    gl.useProgram(program);
+    gl.useProgram(characterProgram);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(characterVertices)), gl.STATIC_DRAW);

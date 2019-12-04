@@ -63,9 +63,11 @@
       border-radius: 50%;
     }
   </style>
-  <script id="vertex-shader-box" type="x-shader/x-vertex">
 
-attribute vec3 chracterPosition;
+
+  <script id="boxVertex" type="x-shader/x-vertex">
+
+attribute vec3 boxPosition;
 
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
@@ -75,14 +77,15 @@ varying float s;
 
 void main(){
 
-  gl_Position = projectionMatrix *  modelViewMatrix * vec4(chracterPosition, 1.0);
+  vec3 test = vec3(boxPosition.x, boxPosition.y + 0.5, boxPosition.z);
+
+  gl_Position = projectionMatrix *  modelViewMatrix * vec4(boxPosition, 1.0);
   s = score;
 }
-  
   </script>
 
 
-  <script id="fragment-shader-box" type="x-shader/x-fragment">
+  <script id="boxFragment" type="x-shader/x-fragment">
     precision mediump float;
 
     const float ambient = 0.3;
@@ -108,13 +111,10 @@ void main(){
       gl_FragColor = cubeCol;
     }
     
-  
-  
+
   </script>
 
-  <script id="vertex-shader" type="x-shader/x-vertex">
-
-
+  <script id="characterVertex" type="x-shader/x-vertex">
 attribute vec3 vPosition;
 attribute vec3 vNormal;
 attribute vec2 uv;
@@ -155,7 +155,9 @@ void main(){
 }
 
 </script>
-  <script id="fragment-shader" type="x-shader/x-fragment">
+
+
+  <script id="characterFragment" type="x-shader/x-fragment">
 precision mediump float;
 
 const float ambient = 0.3;
@@ -178,8 +180,8 @@ void main(){
 
   gl_FragColor = texel;
 }
-
 </script>
+
   <script type="text/javascript" src="Common/webgl-utils.js"></script>
   <script type="text/javascript" src="Common/initShaders.js"></script>
   <script type="text/javascript" src="Common/MV.js"></script>
