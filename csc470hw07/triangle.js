@@ -53,8 +53,11 @@ var characterRight= 0;
 var characterWidth = 0.5;
 
 var boxRight = 0;
-var boxLeft = 0;
-var boxBottom = 0;
+var boxLeft = 1000;
+var boxBottom = 100;
+var boxWidth = 0.3;
+
+var score = 0;
 
 const uvData = [
     1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1,
@@ -90,8 +93,22 @@ window.onload = function init() {
         alert("WebGL isn't available");
     }
 
+    document.getElementById("score").innerHTML = "Score: " + score;
     drawBox();
     drawCharacter();
+
+
+    for (let i = 0; i<boxPosVertices.length; i++) {
+        if (boxLeft > boxPosVertices[i][0]) {
+            boxLeft = boxPosVertices[i][0];
+        }
+        if (boxBottom > boxPosVertices[i][1]) {
+            boxBottom = boxPosVertices[i][1];
+        }
+    }
+    boxRight = boxLeft + boxWidth;
+
+    this.console.log("Box b: " + this.boxBottom + " left: " + this.boxLeft + " right: " + this.boxRight);
 
     //  Configure WebGL    
     gl.viewport(0, 0, canvas.width, canvas.height);
@@ -107,12 +124,15 @@ window.onload = function init() {
     gl.uniformMatrix4fv(gl.getUniformLocation(boxProgram, "modelViewMatrix"), false, flatten(modelView));
     gl.uniformMatrix4fv(gl.getUniformLocation(boxProgram, "projectionMatrix"), false, flatten(projectionMatrix));
 
+    gl.uniform1f(gl.getUniformLocation(boxProgram, "score"), score);
+
     boxPositionBuffer = gl.createBuffer();
     var boxPos = gl.getAttribLocation(boxProgram, "chracterPosition");
     gl.enableVertexAttribArray(boxPos);
     gl.vertexAttribPointer(boxPos, 3, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(boxPosVertices)), gl.STATIC_DRAW)
+
 
 
     gl.useProgram(program);
@@ -264,7 +284,7 @@ function handleKeyboard(e) {
         }
         characterRight = characterLeft - characterWidth;
 
-        
+
 
         console.log("top" + characterTop + " L: " + characterLeft + " right" + characterRight);
 
@@ -304,14 +324,23 @@ function jump() {
     var tInc = 0.05;
     var currentTime = 0.05;
     var currentHeight = getHeight(currentTime);
+    var scoredPoint = false;
 
     if (!jumping) {
         console.log("jumping");
         var i = 0
         while (i < 40) {
             currentTime += tInc;
-            currentHeight = getHeight(currentTime);
-            jumpHeights.push(currentHeight);
+            if (boxBottom > characterTop && characterLeft > boxLeft && characterRight < boxRight) {
+                currentHeight = getHeight(currentTime);
+                jumpHeights.push(currentHeight);
+            } else {
+                if (!scoredPoint) {
+                    console.log("Hit the box!");
+                    score++;
+                    scoredPoint = true;
+                }
+            }
             i++
         }
     
@@ -460,7 +489,7 @@ function rollRight() {
 
 function drawBox() {
     var xVal = -0.3;
-    var width = 0.5;
+    var width = boxWidth;
     var yVal = -0.5;
     var cubeDepth = 0.1;
 
@@ -679,7 +708,13 @@ function render() {
     gl.useProgram(boxProgram);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
+    gl.uniform1f(gl.getUniformLocation(boxProgram, "score"), score);
+    document.getElementById("score").innerHTML = "Score: " + score;
+
+
+
     gl.drawArrays(gl.TRIANGLES, 0, boxPosVertices.length);
+
 
     //redraw the guy
     gl.useProgram(program);

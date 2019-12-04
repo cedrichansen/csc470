@@ -70,11 +70,13 @@ attribute vec3 chracterPosition;
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
 
+uniform float score;
+varying float s;
 
 void main(){
 
   gl_Position = projectionMatrix *  modelViewMatrix * vec4(chracterPosition, 1.0);
-
+  s = score;
 }
   
   </script>
@@ -86,11 +88,15 @@ void main(){
     const float ambient = 0.3;
     const vec3 lightDirection = normalize(vec3(-1.0, 0.0, -2.0));
     
+    varying float s;
+
     uniform sampler2D textureID;
         
     void main(){
 
-      vec4 cubeCol = vec4(1.0, 0.0,0.5, 1.0);
+      float scoreCol = s * 0.05;
+
+      vec4 cubeCol = vec4(1.0, scoreCol,0.5, 1.0);
     
       //float diffuse = max(0.0, dot(normal, lightDirection));
     
@@ -234,6 +240,8 @@ void main(){
     </canvas>
 
   </div>
+
+  <p id="score"></p>
 
 
 </body>
