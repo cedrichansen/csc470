@@ -220,16 +220,20 @@ function handleKeyboard(e) {
     var validkeyPress = false;
 
     if (e.key == "a") {
-        strafeLeft();
+        //strafeLeft();
+        moveCharacterLeft();
         validkeyPress = true;
     } else if (e.key == "d") {
-        strafeRight();
+        //strafeRight();
+        moveCharacterRight();
         validkeyPress = true;
     } else if (e.key == "w") {
-        moveUp();
+        //moveUp();
+        moveCharacterUp();
         validkeyPress = true;
     } else if (e.key == "s") {
-        moveDown();
+        //moveDown();
+        moveCharacterDown();
         validkeyPress = true;
     } else if (e.key == "q") {
         zoom();
@@ -333,7 +337,7 @@ function jump() {
             currentTime += tInc;
             currentHeight = getHeight(currentTime);
             jumpHeights.push(currentHeight);
-            
+
             if (boxBottom > characterTop && characterLeft > boxLeft && characterRight < boxRight) {
 
             } else {
