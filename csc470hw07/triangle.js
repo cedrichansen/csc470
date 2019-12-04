@@ -14,13 +14,6 @@ var boxVertices = [];
 var characterProgram;
 var boxProgram;
 
-var positionBuffer;
-var normalBuffer;
-var uvBuffer;
-var rightBuffer;
-
-var boxPositionBuffer;
-
 var jumpHeights = [];
 var currentHeightIndex = 0;
 
@@ -130,34 +123,34 @@ window.onload = function init() {
 
     gl.uniform1f(gl.getUniformLocation(boxProgram, "score"), score);
 
-    boxPositionBuffer = gl.createBuffer();
-    var boxPos = gl.getAttribLocation(boxProgram, "boxPosition");
-    gl.enableVertexAttribArray(boxPos);
-    gl.vertexAttribPointer(boxPos, 3, gl.FLOAT, false, 0, 0);
-    gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(boxVertices)), gl.STATIC_DRAW)
+    // boxPositionBuffer = gl.createBuffer();
+    // var boxPos = gl.getAttribLocation(boxProgram, "boxPosition");
+    // gl.enableVertexAttribArray(boxPos);
+    // gl.vertexAttribPointer(boxPos, 3, gl.FLOAT, false, 0, 0);
+    // gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
+    // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(boxVertices)), gl.STATIC_DRAW)
 
 
 
     /** Setup the character */
     gl.useProgram(characterProgram);
 
-    positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(characterVertices)), gl.STATIC_DRAW);
+    // positionBuffer = gl.createBuffer();
+    // gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(characterVertices)), gl.STATIC_DRAW);
 
-    normalBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(normals)), gl.STATIC_DRAW);
+    // normalBuffer = gl.createBuffer();
+    // gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    // gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(normals)), gl.STATIC_DRAW);
 
-    uvBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(uvCoords)), gl.STATIC_DRAW);
+    // uvBuffer = gl.createBuffer();
+    // gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+    // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(uvCoords)), gl.STATIC_DRAW);
 
-    //right buffer;
-    rightBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, rightBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(rightVectors)), gl.STATIC_DRAW);
+    // //right buffer;
+    // rightBuffer = gl.createBuffer();
+    // gl.bindBuffer(gl.ARRAY_BUFFER, rightBuffer);
+    // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(rightVectors)), gl.STATIC_DRAW);
 
     tex = loadTexture("box.jpg");
 
@@ -165,25 +158,25 @@ window.onload = function init() {
     gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.uniform1i(gl.getUniformLocation(characterProgram, "textureID"), 0);
 
-    var vPosition = gl.getAttribLocation(characterProgram, "vPosition");
-    gl.enableVertexAttribArray(vPosition);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
-    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
+    // var vPosition = gl.getAttribLocation(characterProgram, "vPosition");
+    // gl.enableVertexAttribArray(vPosition);
+    // gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+    // gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
 
-    var vNormal = gl.getAttribLocation(characterProgram, "vNormal");
-    gl.enableVertexAttribArray(vNormal);
-    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-    gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+    // var vNormal = gl.getAttribLocation(characterProgram, "vNormal");
+    // gl.enableVertexAttribArray(vNormal);
+    // gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    // gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
 
-    var uvLocation = gl.getAttribLocation(characterProgram, "uv");
-    gl.enableVertexAttribArray(uvLocation);
-    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
-    gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
+    // var uvLocation = gl.getAttribLocation(characterProgram, "uv");
+    // gl.enableVertexAttribArray(uvLocation);
+    // gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+    // gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
 
-    var rightPos = gl.getAttribLocation(characterProgram, "vRight");
-    gl.enableVertexAttribArray(rightPos);
-    gl.bindBuffer(gl.ARRAY_BUFFER, rightBuffer);
-    gl.vertexAttribPointer(rightPos, 3, gl.FLOAT, false, 0, 0);
+    // var rightPos = gl.getAttribLocation(characterProgram, "vRight");
+    // gl.enableVertexAttribArray(rightPos);
+    // gl.bindBuffer(gl.ARRAY_BUFFER, rightBuffer);
+    // gl.vertexAttribPointer(rightPos, 3, gl.FLOAT, false, 0, 0);
 
 
     gl.uniformMatrix4fv(gl.getUniformLocation(characterProgram, "modelViewMatrix"), false, flatten(modelView));
@@ -511,7 +504,7 @@ function drawBox() {
     var yVal = -0.5;
     var cubeDepth = 0.1;
 
-    var distance = -10;
+    var distance = -0.1;
 
     var pos = [
         vec3(xVal + width, yVal - width, distance +  cubeDepth),
@@ -724,28 +717,51 @@ function render() {
 
     // //redraw the box
     gl.useProgram(boxProgram);
+    var boxBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, boxBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(boxVertices)), gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
+    var boxPos = gl.getAttribLocation(boxProgram, "boxPosition");
+    gl.vertexAttribPointer(boxPos, 3, gl.FLOAT, false, 0,0);
+    gl.enableVertexAttribArray(boxPos);
+
     //send the current score
     gl.uniform1f(gl.getUniformLocation(boxProgram, "score"), score);
     document.getElementById("score").innerHTML = "Score: " + score;
+
     gl.drawArrays(gl.TRIANGLES, 0, boxVertices.length);
 
 
     //redraw the guy
     gl.useProgram(characterProgram);
 
+    var positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(characterVertices)), gl.STATIC_DRAW);
+    var vPosition = gl.getAttribLocation(characterProgram, "vPosition");
+    gl.enableVertexAttribArray(vPosition);
+    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
 
+    var normalBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(normals)), gl.STATIC_DRAW);
+    var vNormal = gl.getAttribLocation(characterProgram, "vNormal");
+    gl.enableVertexAttribArray(vNormal);
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
 
+    var uvBuffer = gl.createBuffer();    
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(uvCoords)), gl.STATIC_DRAW);
+    var uvLocation = gl.getAttribLocation(characterProgram, "uv");
+    gl.enableVertexAttribArray(uvLocation);
+    gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
 
+    var rightBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, rightBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(rightVectors)), gl.STATIC_DRAW);
+    var rightPos = gl.getAttribLocation(characterProgram, "vRight");
+    gl.enableVertexAttribArray(rightPos);
+    gl.vertexAttribPointer(rightPos, 3, gl.FLOAT, false, 0, 0);
 
     gl.drawArrays(gl.TRIANGLES, 0, characterVertices.length);
 
