@@ -1,6 +1,7 @@
 'use strict';
 
 var gl;
+var backTex;
 
 //a character that starts at the center of the screen
 var characterVertices = [];
@@ -44,6 +45,17 @@ var norm;
 
 var jumping = false;
 
+var boxHit = false;
+
+var characterTop = 0;
+var characterLeft = 0 ;
+var characterRight= 0;
+var characterWidth = 0.5;
+
+var boxRight = 0;
+var boxLeft = 0;
+var boxBottom = 0;
+
 const uvData = [
     1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1,
     1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1,
@@ -53,6 +65,23 @@ const uvData = [
     1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1,
 ];
 
+function initBkgnd() {
+    backTex = gl.createTexture();
+    backTex.Img = new Image();
+    backTex.Img.onload = function() {
+        handleBkTex(backTex);
+    }
+    backTex.Img.src = "mario.jpg";
+}
+
+function handleBkTex(tex) {
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tex.Img);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+}
 
 window.onload = function init() {
     var canvas = document.getElementById("gl-canvas");
@@ -66,7 +95,8 @@ window.onload = function init() {
 
     //  Configure WebGL    
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
+    initBkgnd();
     gl.enable(gl.DEPTH_TEST);
 
     boxProgram = initShaders(gl, "vertex-shader-box", "fragment-shader-box");
@@ -221,6 +251,23 @@ function handleKeyboard(e) {
     }
 
     if (validkeyPress) {
+
+        characterLeft = -100;
+        characterTop = -100;
+        for (let i =0; i<characterVertices.length; i++) {
+            if (characterLeft < characterVertices[i][0]) {
+                characterLeft = characterVertices[i][0];
+            }
+            if (characterTop < characterVertices[i][1]) {
+                characterTop = characterVertices[i][1];
+            }
+        }
+        characterRight = characterLeft - characterWidth;
+
+        
+
+        console.log("top" + characterTop + " L: " + characterLeft + " right" + characterRight);
+
         modelView = lookAt(cameraPosition, lookingAt, up);
         gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(modelView));
         gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
@@ -475,7 +522,7 @@ function drawCharacter() {
 
     var xVal = 0.1;
     var yVal = 0.4;
-    var width = 0.5;
+    var width = characterWidth;
 
     var cubeDepth = width / 2;
 
