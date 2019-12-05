@@ -38,6 +38,8 @@ var goingLeft = true;
 var tex;
 var marioRightImg;
 var marioLeftImg;
+var starPowerNoise;
+var themeSong;
 
 var norm;
 
@@ -62,6 +64,11 @@ var boxTop = 0;
 var boxHeight = 0.5;
 
 var score = 0;
+
+var frameToHitBox = -1;
+var jumpNoise;
+var boxNoise;
+
 
 var marioImg;
 var boxImg;
@@ -108,8 +115,21 @@ window.onload = function init() {
     boxImg = loadImage("coinBlock.png")
     marioLeftImg = loadImage("mLeft.jpeg");
 
+    jumpNoise = new Audio("smb_jump-small.wav");
+    this.jumpNoise.volume = 0.8;
+    boxNoise = new Audio("smb_bump.wav");
+    this.boxNoise.volume = 1.0
+    themeSong = new Audio("themeSong.mp3");
+    themeSong.autoplay = true;
+    themeSong.volume = 0.6;
+    themeSong.play();
+    starPowerNoise = new this.Audio("starPower.mp3");
+    this.starPowerNoise.loop = true;
+
     drawBox();
     drawCharacter();
+
+
 
     for (let i = 0; i<boxVertices.length; i++) {
         if (boxRight > boxVertices[i][0]) {
@@ -268,8 +288,8 @@ function handleKeyboard(e) {
         characterBottom = characterTop - characterHeight;
 
 
-        console.log("character top" + characterTop + " bottom: " + characterBottom + " Left: " + characterLeft + " right" + characterRight);
-        console.log("Box bottom: " + boxBottom + " top: " + boxTop + " left: " + boxLeft + " right: " + boxRight);
+        //console.log("character top" + characterTop + " bottom: " + characterBottom + " Left: " + characterLeft + " right" + characterRight);
+        //console.log("Box bottom: " + boxBottom + " top: " + boxTop + " left: " + boxLeft + " right: " + boxRight);
 
         modelView = lookAt(cameraPosition, lookingAt, up);
         gl.uniformMatrix4fv(gl.getUniformLocation(characterProgram, "modelViewMatrix"), false, flatten(modelView));
@@ -316,8 +336,14 @@ function jump() {
     var maxHeight;
 
 
+
     if (!jumping) {
-        console.log("jumping");
+        //("jumping");
+
+        jumpNoise.play();
+
+        frameToHitBox = -1;
+
         var i = 0
         while (i < 41) {
             currentTime += tInc;
@@ -329,12 +355,24 @@ function jump() {
             //console.log(" char top: " + currentCharTop + " char L:" + characterLeft + " char R: " + characterRight);
 
             if (boxBottom < currentCharTop && ((characterRight < boxLeft &&  characterRight > boxRight) || (characterLeft > boxRight && characterLeft < boxLeft))) {
-                    console.log("Hit the box!");
+                    //console.log("Hit the box!");
                     score++;
                     glScore = score % 11;
                     for (var j = jumpHeights.length - 1; j >= 0; j--) {
                         jumpHeights.push(jumpHeights[j]);
                     }
+
+                    if (glScore == 10) {
+                        starPowerNoise.play();
+                        themeSong.volume = 0;
+                    } else {
+                        starPowerNoise.pause();
+                        themeSong.volume = 0.6;
+                    }
+
+                    frameToHitBox = i;
+
+                    console.log("frame to hit box: " + frameToHitBox);
 
                     jumpHeights.push(getHeight(0));
 
@@ -349,6 +387,7 @@ function jump() {
     
 }
 
+var currentJumpFrame = 0;
 
 function jumpAnim() {
     jumping = true;
@@ -356,8 +395,18 @@ function jumpAnim() {
     var jumpHeight = jumpHeights[currentHeightIndex];
     currentHeightIndex++;
 
+
+
     gl.uniform1f(gl.getUniformLocation(characterProgram, "jumpHeight"), jumpHeight);
     render();
+
+    if (currentJumpFrame == frameToHitBox) {
+        //jumpNoise.pause();
+        boxNoise.play();
+        frameToHitBox = -1;
+    }
+
+    currentJumpFrame++;
 
     if (currentHeightIndex < jumpHeights.length - 1) {
         window.requestAnimationFrame(jumpAnim);
@@ -366,6 +415,7 @@ function jumpAnim() {
         jumpHeights = [];
         currentHeightIndex = 0;
         jumping = false;
+        frameToHitBox = -1;
     }
 }
 
