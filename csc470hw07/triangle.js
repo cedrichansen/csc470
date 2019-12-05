@@ -33,8 +33,11 @@ var zFar = 1000;
 var fieldOfView = 50;
 var projectionMatrix = perspective(fieldOfView, aspect, zNear, zFar);
 
+var goingLeft = true;
+
 var tex;
-var mario;
+var marioRightImg;
+var marioLeftImg;
 
 var norm;
 
@@ -99,10 +102,11 @@ window.onload = function init() {
 
     document.getElementById("score").innerHTML = "Score: " + score;
     tex = loadTexture("coinBlock.png");
-    mario = loadTexture("m.jpg");
+    var mario = loadTexture("mLeft.jpg");
 
-    marioImg = loadImage("m.jpg", render);
-    boxImg = loadImage("coinBlock.png", render)
+    marioRightImg = loadImage("mRight.jpg");
+    boxImg = loadImage("coinBlock.png")
+    marioLeftImg = loadImage("mLeft.jpg");
 
     drawBox();
     drawCharacter();
@@ -179,10 +183,12 @@ function loadTexture(url) {
     return texture;
 }
 
-function loadImage(url, callback) {
+function loadImage(url) {
     var image = new Image();
     image.src = url;
-    image.onload = callback;
+    image.onload = e => {
+            //render();
+    };
     return image;
   }
 
@@ -289,11 +295,13 @@ function moveCharacterLeft() {
     for (let i = 0; i < characterVertices.length; i++) {
         characterVertices[i][0] = characterVertices[i][0] + moveSpeed;
       }
+      goingLeft = true;
 }
 function moveCharacterRight() {
     for (let i = 0; i < characterVertices.length; i++) {
         characterVertices[i][0] = characterVertices[i][0] - moveSpeed;
       }
+      goingLeft = false;
 }
 
 
@@ -722,7 +730,6 @@ function render() {
 
     //gl.clear(gl.COLOR_BUFFER_BIT);
 
-    // //redraw the box
     gl.useProgram(boxProgram);
 
     var texture = gl.createTexture();
@@ -765,7 +772,11 @@ function render() {
 
     var texture1 = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture1);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, marioImg);
+    if (goingLeft) {
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, marioLeftImg);
+    } else {
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, marioRightImg);
+    }
     gl.generateMipmap(gl.TEXTURE_2D);
     gl.activeTexture(gl.TEXTURE0);
     gl.uniform1i(gl.getUniformLocation(characterProgram, "textureID"), 0);
