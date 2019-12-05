@@ -95,10 +95,6 @@ window.onload = function init() {
     drawBox();
     drawCharacter();
 
-
-    this.console.log("Box: " + this.boxVertices);
-    this.console.log("Character: " + this.characterVertices);
-
     for (let i = 0; i<boxVertices.length; i++) {
         if (boxRight > boxVertices[i][0]) {
             boxRight = boxVertices[i][0];
@@ -287,7 +283,6 @@ function jump() {
     var tInc = 0.05;
     var currentTime = 0.00;
     var currentHeight = getHeight(currentTime);
-    var scoredPoint = false;
 
     var currentCharTop = currentHeight + characterTop;
     var maxHeight;
@@ -302,16 +297,20 @@ function jump() {
             currentCharTop = (currentHeight * 0.08) + characterTop;
             jumpHeights.push(currentHeight);
             
-            console.log ("Box bottom: " + boxBottom +" boxL: " + boxLeft + " box R: " + boxRight);
-            console.log(" char top: " + currentCharTop + " char L:" + characterLeft + " char R: " + characterRight);
+            //console.log ("Box bottom: " + boxBottom +" boxL: " + boxLeft + " box R: " + boxRight);
+            //console.log(" char top: " + currentCharTop + " char L:" + characterLeft + " char R: " + characterRight);
 
-            if (boxBottom < currentCharTop && characterLeft < boxLeft && characterRight > boxRight && characterTop < boxTop) {
-                if (!scoredPoint) {
+            if (boxBottom < currentCharTop && (characterLeft < boxLeft && characterRight > boxRight && characterTop < boxTop) ) {
                     console.log("Hit the box!");
-
                     score++;
-                    scoredPoint = true;
-                }
+
+                    for (var j = jumpHeights.length - 1; j >= 0; j--) {
+                        jumpHeights.push(jumpHeights[j]);
+                    }
+
+                    jumpHeights.push(getHeight(0));
+
+                    break;
             }
             i++
         }
@@ -525,7 +524,7 @@ function drawBox() {
 function drawCharacter() {
 
     var xVal = 0.1;
-    var yVal = 0.4;
+    var yVal = -0.28;
     var width = characterWidth;
     var height = characterHeight;
 
