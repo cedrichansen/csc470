@@ -687,6 +687,23 @@ function getRandomColor() {
     return [Math.random(), Math.random(), Math.random()];
   }
 
+var fresh = true;
+
+  function boxColorAnim(){
+
+    gl.useProgram(boxProgram);
+    render();
+    frames++;
+    if (frames < 10) {
+        fresh = false;
+        window.requestAnimationFrame(boxColorAnim);
+    } else {
+        frames = 0;
+        fresh = true;
+    }
+
+  }
+
 function render() {
 
     //gl.clear(gl.COLOR_BUFFER_BIT);
@@ -702,6 +719,11 @@ function render() {
 
     //send the current score
     var glScore = score % 11;
+    if (glScore == 10 && fresh) {
+        window.requestAnimationFrame(boxColorAnim);
+    } else {
+        gl.uniform3fv(gl.getUniformLocation(boxProgram, "color"), flatten(getRandomColor()));
+    }
     gl.uniform1f(gl.getUniformLocation(boxProgram, "score"), glScore);
     document.getElementById("score").innerHTML = "Score: " + score;
 
@@ -713,7 +735,6 @@ function render() {
     gl.vertexAttribPointer(uvBoxLocation, 2, gl.FLOAT, false, 0, 0);
 
     //send random colors
-    gl.uniform3fv(gl.getUniformLocation(boxProgram, "color"), flatten(getRandomColor()));
 
     gl.drawArrays(gl.TRIANGLES, 0, boxVertices.length);
 
