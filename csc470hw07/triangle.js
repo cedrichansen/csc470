@@ -120,9 +120,9 @@ window.onload = function init() {
     boxNoise = new Audio("smb_bump.wav");
     this.boxNoise.volume = 1.0
     themeSong = new Audio("themeSong.mp3");
-    themeSong.autoplay = true;
+    //themeSong.autoplay = true;
     themeSong.volume = 0.6;
-    themeSong.play();
+    //themeSong.play();
     starPowerNoise = new this.Audio("starPower.mp3");
     this.starPowerNoise.loop = true;
 
@@ -182,6 +182,12 @@ window.onload = function init() {
             e.preventDefault();
             jump();
         }
+    });
+
+    var themeButton = document.getElementById("themeButton");
+    themeButton.addEventListener('click', function(e) {
+        themeSong.play();
+        themeButton.disabled = true;
     });
 
     render();
