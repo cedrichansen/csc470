@@ -60,6 +60,9 @@ var boxHeight = 0.5;
 
 var score = 0;
 
+var marioImg;
+var boxImg;
+
 const uvData = [
     1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1,
     1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1,
@@ -96,8 +99,10 @@ window.onload = function init() {
 
     document.getElementById("score").innerHTML = "Score: " + score;
     tex = loadTexture("coinBlock.png");
-    mario = loadTexture("coinBlock.png");
+    mario = loadTexture("m.jpg");
 
+    marioImg = loadImage("m.jpg", render);
+    boxImg = loadImage("coinBlock.png", render)
 
     drawBox();
     drawCharacter();
@@ -172,9 +177,14 @@ function loadTexture(url) {
     image.crossOrigin = "";
     image.src = url;
     return texture;
-
-
 }
+
+function loadImage(url, callback) {
+    var image = new Image();
+    image.src = url;
+    image.onload = callback;
+    return image;
+  }
 
 
 function handleKeyboard(e) {
@@ -707,12 +717,22 @@ var fresh = true;
 
   }
 
+
 function render() {
 
     //gl.clear(gl.COLOR_BUFFER_BIT);
 
     // //redraw the box
     gl.useProgram(boxProgram);
+
+    var texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, boxImg);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.uniform1i(gl.getUniformLocation(boxProgram, "textureID"), 0);
+
+
     var boxBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, boxBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(boxVertices)), gl.STATIC_DRAW);
@@ -736,13 +756,20 @@ function render() {
     gl.enableVertexAttribArray(uvBoxLocation);
     gl.vertexAttribPointer(uvBoxLocation, 2, gl.FLOAT, false, 0, 0);
 
-    //send random colors
 
     gl.drawArrays(gl.TRIANGLES, 0, boxVertices.length);
 
 
     //redraw the guy
     gl.useProgram(characterProgram);
+
+    var texture1 = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture1);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, marioImg);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.uniform1i(gl.getUniformLocation(characterProgram, "textureID"), 0);
+
 
     var positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
