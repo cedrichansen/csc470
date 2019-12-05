@@ -189,7 +189,7 @@ void main(){
   float vBrightness = ambient + diffuse;
 
   vec4 texel = texture2D(textureID, vUV);
-  texel.xyz *= vBrightness;
+ // texel.xyz *= vBrightness;
 
   gl_FragColor = texel;
 }

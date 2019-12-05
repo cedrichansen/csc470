@@ -50,7 +50,7 @@ var boxHit = false;
 var characterTop = 0;
 var characterLeft = 0 ;
 var characterRight= 0;
-var characterWidth = 0.2;
+var characterWidth = 0.19;
 var characterBottom = 0;
 var characterHeight = 0.5;
 
@@ -102,11 +102,11 @@ window.onload = function init() {
 
     document.getElementById("score").innerHTML = "Score: " + score;
     tex = loadTexture("coinBlock.png");
-    var mario = loadTexture("mLeft.jpg");
+    var mario = loadTexture("mLeft.jpeg");
 
-    marioRightImg = loadImage("mRight.jpg");
+    marioRightImg = loadImage("mRight.jpeg");
     boxImg = loadImage("coinBlock.png")
-    marioLeftImg = loadImage("mLeft.jpg");
+    marioLeftImg = loadImage("mLeft.jpeg");
 
     drawBox();
     drawCharacter();
