@@ -17,14 +17,14 @@ var boxProgram;
 var jumpHeights = [];
 var currentHeightIndex = 0;
 
-var cameraPosition = vec3(0.0, 0.0, -2.5);
+var cameraPosition = vec3(0.0, -0.5, -2.5);
 var lookingAt = vec3(0.0, 0.0, 0.0);
 var up = vec3(0.0, 1.0, 0.0);
 var right = vec3(1.0, 0.0, 0.0);
 
 var modelView = lookAt(cameraPosition, lookingAt, up);
 
-var moveSpeed = 0.01;
+var moveSpeed = 0.04;
 var rotationSpeed = 1;
 
 var aspect = 1;
@@ -43,12 +43,16 @@ var boxHit = false;
 var characterTop = 0;
 var characterLeft = 0 ;
 var characterRight= 0;
-var characterWidth = 0.3;
+var characterWidth = 0.2;
+var characterBottom = 0;
+var characterHeight = 0.5;
 
-var boxRight = -1000;
-var boxLeft = 1000;
+var boxRight = 1000;
+var boxLeft = 0;
 var boxBottom = 100;
 var boxWidth = 0.3;
+var boxTop = 0;
+var boxHeight = 0.4;
 
 var score = 0;
 
@@ -67,7 +71,7 @@ function initBkgnd() {
     backTex.Img.onload = function() {
         handleBkTex(backTex);
     }
-    backTex.Img.src = "mario.jpg";
+    backTex.Img.src = "simplemario.png";
 }
 
 function handleBkTex(tex) {
@@ -96,15 +100,15 @@ window.onload = function init() {
     this.console.log("Character: " + this.characterVertices);
 
     for (let i = 0; i<boxVertices.length; i++) {
-        if (boxLeft > boxVertices[i][0]) {
-            boxLeft = boxVertices[i][0];
+        if (boxRight > boxVertices[i][0]) {
+            boxRight = boxVertices[i][0];
         }
         if (boxBottom > boxVertices[i][1]) {
             boxBottom = boxVertices[i][1];
         }
     }
-    boxRight = boxLeft + boxWidth;
-
+    boxLeft = boxRight + boxWidth;
+    boxTop = this.boxBottom + this.boxHeight;
 
     //  Configure WebGL    
     gl.viewport(0, 0, canvas.width, canvas.height);
@@ -123,61 +127,15 @@ window.onload = function init() {
 
     gl.uniform1f(gl.getUniformLocation(boxProgram, "score"), score);
 
-    // boxPositionBuffer = gl.createBuffer();
-    // var boxPos = gl.getAttribLocation(boxProgram, "boxPosition");
-    // gl.enableVertexAttribArray(boxPos);
-    // gl.vertexAttribPointer(boxPos, 3, gl.FLOAT, false, 0, 0);
-    // gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
-    // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(boxVertices)), gl.STATIC_DRAW)
-
-
 
     /** Setup the character */
     gl.useProgram(characterProgram);
-
-    // positionBuffer = gl.createBuffer();
-    // gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(characterVertices)), gl.STATIC_DRAW);
-
-    // normalBuffer = gl.createBuffer();
-    // gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-    // gl.bufferData(gl.ARRAY_BUFFER, new this.Float32Array(flatten(normals)), gl.STATIC_DRAW);
-
-    // uvBuffer = gl.createBuffer();
-    // gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
-    // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(uvCoords)), gl.STATIC_DRAW);
-
-    // //right buffer;
-    // rightBuffer = gl.createBuffer();
-    // gl.bindBuffer(gl.ARRAY_BUFFER, rightBuffer);
-    // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(rightVectors)), gl.STATIC_DRAW);
 
     tex = loadTexture("box.jpg");
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.uniform1i(gl.getUniformLocation(characterProgram, "textureID"), 0);
-
-    // var vPosition = gl.getAttribLocation(characterProgram, "vPosition");
-    // gl.enableVertexAttribArray(vPosition);
-    // gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
-    // gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
-
-    // var vNormal = gl.getAttribLocation(characterProgram, "vNormal");
-    // gl.enableVertexAttribArray(vNormal);
-    // gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-    // gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
-
-    // var uvLocation = gl.getAttribLocation(characterProgram, "uv");
-    // gl.enableVertexAttribArray(uvLocation);
-    // gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
-    // gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
-
-    // var rightPos = gl.getAttribLocation(characterProgram, "vRight");
-    // gl.enableVertexAttribArray(rightPos);
-    // gl.bindBuffer(gl.ARRAY_BUFFER, rightBuffer);
-    // gl.vertexAttribPointer(rightPos, 3, gl.FLOAT, false, 0, 0);
-
 
     gl.uniformMatrix4fv(gl.getUniformLocation(characterProgram, "modelViewMatrix"), false, flatten(modelView));
     gl.uniformMatrix4fv(gl.getUniformLocation(characterProgram, "projectionMatrix"), false, flatten(projectionMatrix));
@@ -285,11 +243,11 @@ function handleKeyboard(e) {
             }
         }
         characterRight = characterLeft - characterWidth;
+        characterBottom = characterTop - characterHeight;
 
 
-
-        console.log("character top" + characterTop + " L: " + characterLeft + " right" + characterRight);
-        console.log("Box b: " + boxBottom + " left: " + boxLeft + " right: " + boxRight);
+        console.log("character top" + characterTop + " bottom: " + characterBottom + " Left: " + characterLeft + " right" + characterRight);
+        console.log("Box bottom: " + boxBottom + " top: " + boxTop + " left: " + boxLeft + " right: " + boxRight);
 
         modelView = lookAt(cameraPosition, lookingAt, up);
         gl.uniformMatrix4fv(gl.getUniformLocation(characterProgram, "modelViewMatrix"), false, flatten(modelView));
@@ -305,9 +263,11 @@ function moveCharacterUp() {
 }
 
 function moveCharacterDown() {
-    for (let i = 0; i < characterVertices.length; i++) {
-        characterVertices[i][1] = characterVertices[i][1] - moveSpeed;
-      }
+    if (characterBottom > -0.75) {
+        for (let i = 0; i < characterVertices.length; i++) {
+            characterVertices[i][1] = characterVertices[i][1] - moveSpeed;
+          }
+    }
 }
 function moveCharacterLeft() {
     for (let i = 0; i < characterVertices.length; i++) {
@@ -325,27 +285,30 @@ function jump() {
 
 
     var tInc = 0.05;
-    var currentTime = 0.05;
+    var currentTime = 0.00;
     var currentHeight = getHeight(currentTime);
     var scoredPoint = false;
 
+    var currentCharTop = currentHeight + characterTop;
     var maxHeight;
+
 
     if (!jumping) {
         console.log("jumping");
         var i = 0
-        while (i < 40) {
+        while (i < 41) {
             currentTime += tInc;
             currentHeight = getHeight(currentTime);
+            currentCharTop = (currentHeight * 0.08) + characterTop;
             jumpHeights.push(currentHeight);
             
+            console.log ("Box bottom: " + boxBottom +" boxL: " + boxLeft + " box R: " + boxRight);
+            console.log(" char top: " + currentCharTop + " char L:" + characterLeft + " char R: " + characterRight);
 
-            if (boxBottom > characterTop && characterLeft > boxLeft && characterRight < boxRight) {
-                //did not hit box
-
-            } else {
+            if (boxBottom < currentCharTop && characterLeft < boxLeft && characterRight > boxRight && characterTop < boxTop) {
                 if (!scoredPoint) {
                     console.log("Hit the box!");
+
                     score++;
                     scoredPoint = true;
                 }
@@ -499,43 +462,44 @@ function rollRight() {
 }
 
 function drawBox() {
-    var xVal = -0.3;
+    var xVal = -0.5;
     var width = boxWidth;
-    var yVal = -0.5;
+    var height = boxHeight;
+    var yVal = 0.45;
     var cubeDepth = 0.1;
 
     var distance = -0.1;
 
     var pos = [
-        vec3(xVal + width, yVal - width, distance +  cubeDepth),
+        vec3(xVal + width, yVal - height, distance +  cubeDepth),
         vec3(xVal + width, yVal, distance + cubeDepth),
         vec3(xVal, yVal, distance + cubeDepth),
-        vec3(xVal + width, yVal - width,distance +  cubeDepth),
-        vec3(xVal, yVal - width,distance +  cubeDepth),
+        vec3(xVal + width, yVal - height,distance +  cubeDepth),
+        vec3(xVal, yVal - height, distance +  cubeDepth),
         vec3(xVal, yVal,distance +  cubeDepth),
 
         //back side
         vec3(xVal, yVal, distance - cubeDepth),
         vec3(xVal + width, yVal, distance + 0 -cubeDepth),
-        vec3(xVal + width, yVal - width, distance + 0 -cubeDepth),
+        vec3(xVal + width, yVal - height, distance + 0 -cubeDepth),
         vec3(xVal, yVal,distance + 0  -cubeDepth),
-        vec3(xVal, yVal - width,distance + 0  -cubeDepth),
-        vec3(xVal + width, yVal - width,distance + 0  -cubeDepth),
+        vec3(xVal, yVal - height,distance + 0  -cubeDepth),
+        vec3(xVal + width, yVal - height,distance + 0  -cubeDepth),
 
         //right side
-        vec3(xVal, yVal - width, distance + cubeDepth),
+        vec3(xVal, yVal - height, distance + cubeDepth),
         vec3(xVal, yVal, distance + cubeDepth),
         vec3(xVal, yVal, distance + 0 -cubeDepth),
-        vec3(xVal, yVal - width, distance + cubeDepth),
-        vec3(xVal, yVal - width, distance + 0 - cubeDepth),
+        vec3(xVal, yVal - height, distance + cubeDepth),
+        vec3(xVal, yVal - height, distance + 0 - cubeDepth),
         vec3(xVal, yVal, distance + 0 -cubeDepth),
 
         //left side
-        vec3(xVal + width, yVal - width,distance +  cubeDepth),
+        vec3(xVal + width, yVal - height,distance +  cubeDepth),
         vec3(xVal + width, yVal, distance + cubeDepth),
         vec3(xVal + width, yVal, distance + 0 -cubeDepth),
-        vec3(xVal + width, yVal - width, distance + cubeDepth),
-        vec3(xVal + width, yVal - width, distance + 0 - cubeDepth),
+        vec3(xVal + width, yVal - height, distance + cubeDepth),
+        vec3(xVal + width, yVal - height, distance + 0 - cubeDepth),
         vec3(xVal + width, yVal, distance + 0 -cubeDepth),
 
         //top
@@ -547,12 +511,12 @@ function drawBox() {
         vec3(xVal + width, yVal, distance + 0 +cubeDepth),
 
         //bottom
-        vec3(xVal, yVal - width, distance + 0 -cubeDepth),
-        vec3(xVal, yVal - width, distance + cubeDepth),
-        vec3(xVal + width, yVal - width, distance + cubeDepth),
-        vec3(xVal, yVal - width, distance + 0 -cubeDepth),
-        vec3(xVal + width, yVal - width, distance + 0 -cubeDepth),
-        vec3(xVal + width, yVal - width, distance + cubeDepth),
+        vec3(xVal, yVal - height, distance + 0 -cubeDepth),
+        vec3(xVal, yVal - height, distance + cubeDepth),
+        vec3(xVal + width, yVal - height, distance + cubeDepth),
+        vec3(xVal, yVal - height, distance + 0 -cubeDepth),
+        vec3(xVal + width, yVal - height, distance + 0 -cubeDepth),
+        vec3(xVal + width, yVal - height, distance + cubeDepth),
     ];
 
     Array.prototype.push.apply(boxVertices, pos);
@@ -563,40 +527,41 @@ function drawCharacter() {
     var xVal = 0.1;
     var yVal = 0.4;
     var width = characterWidth;
+    var height = characterHeight;
 
     var cubeDepth = width / 2;
 
     var newSquare = [
         //front facing side
-        vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal + width, yVal - characterHeight, cubeDepth),
         vec3(xVal + width, yVal, cubeDepth),
         vec3(xVal, yVal, cubeDepth),
-        vec3(xVal + width, yVal - width, cubeDepth),
-        vec3(xVal, yVal - width, cubeDepth),
+        vec3(xVal + width, yVal - characterHeight, cubeDepth),
+        vec3(xVal, yVal - characterHeight, cubeDepth),
         vec3(xVal, yVal, cubeDepth),
         
         //back side
         vec3(xVal, yVal, -cubeDepth),
         vec3(xVal + width, yVal, -cubeDepth),
-        vec3(xVal + width, yVal - width, -cubeDepth),
+        vec3(xVal + width, yVal - characterHeight, -cubeDepth),
         vec3(xVal, yVal, -cubeDepth),
-        vec3(xVal, yVal - width, -cubeDepth),
-        vec3(xVal + width, yVal - width, -cubeDepth),
+        vec3(xVal, yVal - characterHeight, -cubeDepth),
+        vec3(xVal + width, yVal - characterHeight, -cubeDepth),
         
         //right side
-        vec3(xVal, yVal - width, cubeDepth),
+        vec3(xVal, yVal - characterHeight, cubeDepth),
         vec3(xVal, yVal, cubeDepth),
         vec3(xVal, yVal, -cubeDepth), 
-        vec3(xVal, yVal - width, cubeDepth),
-        vec3(xVal, yVal - width, - cubeDepth),
+        vec3(xVal, yVal - characterHeight, cubeDepth),
+        vec3(xVal, yVal - characterHeight, - cubeDepth),
         vec3(xVal, yVal, -cubeDepth),
             
         //left side
-        vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal + width, yVal - characterHeight, cubeDepth),
         vec3(xVal + width, yVal, cubeDepth),
         vec3(xVal + width, yVal, -cubeDepth), 
-        vec3(xVal + width, yVal - width, cubeDepth),
-        vec3(xVal + width, yVal - width, - cubeDepth),
+        vec3(xVal + width, yVal - characterHeight, cubeDepth),
+        vec3(xVal + width, yVal - characterHeight, - cubeDepth),
         vec3(xVal + width, yVal, -cubeDepth),
 
         //top
@@ -608,12 +573,12 @@ function drawCharacter() {
         vec3(xVal + width, yVal, cubeDepth),
 
         //bottom
-        vec3(xVal, yVal - width, -cubeDepth),
-        vec3(xVal, yVal - width, cubeDepth),
-        vec3(xVal + width, yVal - width, cubeDepth),
-        vec3(xVal, yVal - width, -cubeDepth),
-        vec3(xVal + width, yVal - width, -cubeDepth),
-        vec3(xVal + width, yVal - width, cubeDepth),
+        vec3(xVal, yVal - characterHeight, -cubeDepth),
+        vec3(xVal, yVal - characterHeight, cubeDepth),
+        vec3(xVal + width, yVal - characterHeight, cubeDepth),
+        vec3(xVal, yVal - characterHeight, -cubeDepth),
+        vec3(xVal + width, yVal - characterHeight, -cubeDepth),
+        vec3(xVal + width, yVal - characterHeight, cubeDepth),
 
     ];
 
