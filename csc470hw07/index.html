@@ -74,9 +74,11 @@ uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
 
 uniform float score;
+uniform vec3 color;
 
 varying float s;
 varying vec2 vUV;
+varying vec3 randomColour;
 
 void main(){
 
@@ -85,6 +87,7 @@ void main(){
   gl_Position = projectionMatrix *  modelViewMatrix * vec4(boxPosition, 1.0);
   s = score;
   vUV = uv;
+  randomColour = color;
 }
   </script>
 
@@ -98,21 +101,27 @@ void main(){
     varying float s;
 
     varying vec2 vUV;
+    varying vec3 randomColour;
 
     uniform sampler2D textureID;
         
     void main(){
 
-      float scoreCol = s * 0.03;
+      if (int(s) < 10) {
+        float scoreCol = s * 0.05;
     
-      //float diffuse = max(0.0, dot(normal, lightDirection));
-    
-      float vBrightness = ((ambient + 0.0) * 0.8 ) + scoreCol;
-    
-      vec4 texel = texture2D(textureID, vUV);
-      texel.xyz *= vBrightness;
-    
-      gl_FragColor = texel;
+        //float diffuse = max(0.0, dot(normal, lightDirection));
+      
+        float vBrightness = ((ambient + 0.0) * 0.8 ) + scoreCol;
+      
+        vec4 texel = texture2D(textureID, vUV);
+        texel.xyz *= vBrightness;
+      
+        gl_FragColor = texel;
+      } else {
+        gl_FragColor = vec4(randomColour, 1.0);
+      }
+      
     }
     
 

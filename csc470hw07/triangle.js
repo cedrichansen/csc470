@@ -34,6 +34,8 @@ var fieldOfView = 50;
 var projectionMatrix = perspective(fieldOfView, aspect, zNear, zFar);
 
 var tex;
+var mario;
+
 var norm;
 
 var jumping = false;
@@ -92,6 +94,8 @@ window.onload = function init() {
 
     document.getElementById("score").innerHTML = "Score: " + score;
     tex = loadTexture("coinBlock.png");
+    mario = loadTexture("coinBlock.png");
+
 
     drawBox();
     drawCharacter();
@@ -128,14 +132,11 @@ window.onload = function init() {
     gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.uniform1i(gl.getUniformLocation(boxProgram, "textureID"), 0);
 
-
-
-
     /** Setup the character */
     gl.useProgram(characterProgram);
 
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.bindTexture(gl.TEXTURE_2D, mario);
     gl.uniform1i(gl.getUniformLocation(characterProgram, "textureID"), 0);
 
     gl.uniformMatrix4fv(gl.getUniformLocation(characterProgram, "modelViewMatrix"), false, flatten(modelView));
@@ -169,6 +170,8 @@ function loadTexture(url) {
     image.crossOrigin = "";
     image.src = url;
     return texture;
+
+
 }
 
 
@@ -680,6 +683,10 @@ function drawCharacter() {
     Array.prototype.push.apply(rightVectors, rightStuff);
 }
 
+function getRandomColor() {
+    return [Math.random(), Math.random(), Math.random()];
+  }
+
 function render() {
 
     //gl.clear(gl.COLOR_BUFFER_BIT);
@@ -694,7 +701,8 @@ function render() {
     gl.enableVertexAttribArray(boxPos);
 
     //send the current score
-    gl.uniform1f(gl.getUniformLocation(boxProgram, "score"), score);
+    var glScore = score % 11;
+    gl.uniform1f(gl.getUniformLocation(boxProgram, "score"), glScore);
     document.getElementById("score").innerHTML = "Score: " + score;
 
     var uvBufferBox = gl.createBuffer();    
@@ -703,6 +711,9 @@ function render() {
     var uvBoxLocation = gl.getAttribLocation(boxProgram, "uv");
     gl.enableVertexAttribArray(uvBoxLocation);
     gl.vertexAttribPointer(uvBoxLocation, 2, gl.FLOAT, false, 0, 0);
+
+    //send random colors
+    gl.uniform3fv(gl.getUniformLocation(boxProgram, "color"), flatten(getRandomColor()));
 
     gl.drawArrays(gl.TRIANGLES, 0, boxVertices.length);
 
