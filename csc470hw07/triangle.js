@@ -52,7 +52,7 @@ var boxLeft = 0;
 var boxBottom = 100;
 var boxWidth = 0.3;
 var boxTop = 0;
-var boxHeight = 0.4;
+var boxHeight = 0.5;
 
 var score = 0;
 
@@ -300,7 +300,7 @@ function jump() {
             //console.log ("Box bottom: " + boxBottom +" boxL: " + boxLeft + " box R: " + boxRight);
             //console.log(" char top: " + currentCharTop + " char L:" + characterLeft + " char R: " + characterRight);
 
-            if (boxBottom < currentCharTop && (characterLeft < boxLeft && characterRight > boxRight && characterTop < boxTop) ) {
+            if (boxBottom < currentCharTop && ((characterRight < boxLeft &&  characterRight > boxRight) || (characterLeft > boxRight && characterLeft < boxLeft))) {
                     console.log("Hit the box!");
                     score++;
 
@@ -464,7 +464,7 @@ function drawBox() {
     var xVal = -0.5;
     var width = boxWidth;
     var height = boxHeight;
-    var yVal = 0.45;
+    var yVal = 0.42;
     var cubeDepth = 0.1;
 
     var distance = -0.1;
