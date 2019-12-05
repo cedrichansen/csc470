@@ -38,6 +38,8 @@ var mario;
 
 var norm;
 
+var glScore;
+
 var jumping = false;
 
 var boxHit = false;
@@ -311,7 +313,7 @@ function jump() {
             if (boxBottom < currentCharTop && ((characterRight < boxLeft &&  characterRight > boxRight) || (characterLeft > boxRight && characterLeft < boxLeft))) {
                     console.log("Hit the box!");
                     score++;
-
+                    glScore = score % 11;
                     for (var j = jumpHeights.length - 1; j >= 0; j--) {
                         jumpHeights.push(jumpHeights[j]);
                     }
@@ -700,6 +702,7 @@ var fresh = true;
     } else {
         frames = 0;
         fresh = true;
+        glScore = 0;
     }
 
   }
@@ -718,8 +721,7 @@ function render() {
     gl.enableVertexAttribArray(boxPos);
 
     //send the current score
-    var glScore = score % 11;
-    if (glScore == 10 && fresh) {
+    if (glScore == 100 && fresh) {
         window.requestAnimationFrame(boxColorAnim);
     } else {
         gl.uniform3fv(gl.getUniformLocation(boxProgram, "color"), flatten(getRandomColor()));
