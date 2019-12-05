@@ -556,7 +556,7 @@ function drawCharacter() {
     var width = characterWidth;
     var height = characterHeight;
 
-    var cubeDepth = width / 2;
+    var cubeDepth = 0.001;
 
     var newSquare = [
         //front facing side
