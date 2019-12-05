@@ -91,6 +91,7 @@ window.onload = function init() {
     }
 
     document.getElementById("score").innerHTML = "Score: " + score;
+    tex = loadTexture("coinBlock.png");
 
     drawBox();
     drawCharacter();
@@ -123,11 +124,15 @@ window.onload = function init() {
 
     gl.uniform1f(gl.getUniformLocation(boxProgram, "score"), score);
 
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.uniform1i(gl.getUniformLocation(boxProgram, "textureID"), 0);
+
+
+
 
     /** Setup the character */
     gl.useProgram(characterProgram);
-
-    tex = loadTexture("box.jpg");
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -691,6 +696,13 @@ function render() {
     //send the current score
     gl.uniform1f(gl.getUniformLocation(boxProgram, "score"), score);
     document.getElementById("score").innerHTML = "Score: " + score;
+
+    var uvBufferBox = gl.createBuffer();    
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBufferBox);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(uvCoords)), gl.STATIC_DRAW);
+    var uvBoxLocation = gl.getAttribLocation(boxProgram, "uv");
+    gl.enableVertexAttribArray(uvBoxLocation);
+    gl.vertexAttribPointer(uvBoxLocation, 2, gl.FLOAT, false, 0, 0);
 
     gl.drawArrays(gl.TRIANGLES, 0, boxVertices.length);
 

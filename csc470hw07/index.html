@@ -68,12 +68,15 @@
   <script id="boxVertex" type="x-shader/x-vertex">
 
 attribute vec3 boxPosition;
+attribute vec2 uv;
 
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
 
 uniform float score;
+
 varying float s;
+varying vec2 vUV;
 
 void main(){
 
@@ -81,6 +84,7 @@ void main(){
 
   gl_Position = projectionMatrix *  modelViewMatrix * vec4(boxPosition, 1.0);
   s = score;
+  vUV = uv;
 }
   </script>
 
@@ -93,22 +97,22 @@ void main(){
     
     varying float s;
 
+    varying vec2 vUV;
+
     uniform sampler2D textureID;
         
     void main(){
 
-      float scoreCol = s * 0.05;
-
-      vec4 cubeCol = vec4(1.0, scoreCol,0.5, 1.0);
+      float scoreCol = s * 0.03;
     
       //float diffuse = max(0.0, dot(normal, lightDirection));
     
-      //float vBrightness = ambient + diffuse;
+      float vBrightness = ((ambient + 0.0) * 0.8 ) + scoreCol;
     
-      //vec4 texel = texture2D(textureID, vUV);
-      //texel.xyz *= vBrightness;
+      vec4 texel = texture2D(textureID, vUV);
+      texel.xyz *= vBrightness;
     
-      gl_FragColor = cubeCol;
+      gl_FragColor = texel;
     }
     
 
